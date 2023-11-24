@@ -1,6 +1,6 @@
 {
-  "name": "psych-exp",
-  "version": "0.0.0",
+  "name": "vue-psych",
+  "version": "0.1.0",
   "private": true,
   "scripts": {
     "dev": "vite",
