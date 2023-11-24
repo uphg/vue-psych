@@ -11,7 +11,7 @@
 </template>
 
 <script setup lang="ts">
-import PsychPane from '@/components/psych/PsychPane.jsx'
+import PsychPane from '@/components/psych/PsychPane'
 import { usePsych } from '@/components/psych/usePsych';
 
 const psych = usePsych()
@@ -50,4 +50,3 @@ button:hover {
   border-color: #aaa;
 }
 </style>
-@/components/psych/PsychPane

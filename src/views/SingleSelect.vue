@@ -32,4 +32,4 @@ function onChange() {
   justify-content: center;
   align-items: center;
 }
-</style>@/components/psych/PsychPane
+</style>

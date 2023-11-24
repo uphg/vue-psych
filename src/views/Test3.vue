@@ -2,18 +2,18 @@
   <div class="container">
     <ColorSelect/>
     <SingleSelect/>
-    <Stimulus type="loading">
+    <PsychPane type="loading">
       <div class="loading-container">
         <Loading/>
         <button @click="next">下一步</button>
       </div>
-    </Stimulus>
+    </PsychPane>
   </div>
 </template>
 
 <script setup lang="ts">
 import { onMounted } from 'vue';
-import Stimulus from '@/components/psych/PsychPane';
+import PsychPane from '@/components/psych/PsychPane';
 import Loading from '@/components/Loading.vue';
 import ColorSelect from './ColorSelect.vue'
 import SingleSelect from './SingleSelect.vue';
@@ -97,4 +97,3 @@ onMounted(() => {
   gap: 20px;
 }
 </style>
-@/components/psych/PsychPane
