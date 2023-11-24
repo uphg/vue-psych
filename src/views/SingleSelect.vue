@@ -1,7 +1,6 @@
 <template>
-  <Part type="singleSelect" v-slot="data">
-    <div class="single-select">
-      <pre>{{ JSON.stringify(data, null, 2) }}</pre>
+  <PsychPane type="singleSelect" v-slot="data">
+    <div class="content">
       <p>{{ data?.m }}</p>
       <div v-for="(item, index) in data?.options" :key="index">
         <label>
@@ -9,19 +8,28 @@
           <span>{{ item }}</span>
         </label>
       </div>
+      <pre>{{ JSON.stringify(data, null, 2) }}</pre>
     </div>
-  </Part>
+  </PsychPane>
 </template>
 
 <script setup lang="ts">
-import Part from '@/components/psych/Part'
-import type { PropType } from 'vue';
+import PsychPane from '@/components/psych/PsychPane.jsx'
+import { usePsych } from '@/components/psych/usePsych';
 
-const props = defineProps({
-  psych: Object as PropType<Record<string, any>>
-})
+const psych = usePsych()
 
 function onChange() {
-  props.psych!.next()
+  psych.next()
 }
 </script>
+
+<style scoped>
+.content {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+</style>@/components/psych/PsychPane

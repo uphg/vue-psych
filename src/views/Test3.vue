@@ -1,23 +1,30 @@
 <template>
   <div class="container">
-    <ColorSelect :psych="psych"/>
-    <SingleSelect :psych="psych"/>
-    <Part type="loading">
-      <Loading/>
-      <button @click="next">下一步</button>
-    </Part>
+    <ColorSelect/>
+    <SingleSelect/>
+    <Stimulus type="loading">
+      <div class="loading-container">
+        <Loading/>
+        <button @click="next">下一步</button>
+      </div>
+    </Stimulus>
   </div>
 </template>
 
 <script setup lang="ts">
 import { onMounted } from 'vue';
+import Stimulus from '@/components/psych/PsychPane';
+import Loading from '@/components/Loading.vue';
 import ColorSelect from './ColorSelect.vue'
 import SingleSelect from './SingleSelect.vue';
-import Part from '@/components/psych/Part';
-import Loading from '@/components/Loading.vue';
-import { usePsych } from '@/components/psych/usePsych';
+import { useProviderPsych } from '@/components/psych/useProviderPsych';
 
-const psych = usePsych()
+const psych = useProviderPsych({
+  onFinish() {
+    console.log('psych.timelineNodes')
+    console.log(psych.getTimelineNodes())
+  }
+})
 
 const timeline = [
   {
@@ -80,21 +87,14 @@ onMounted(() => {
 })
 </script>
 
-<style scoped>
-.container {
+<style>
+.loading-container {
   min-height: 100vh;
   display: flex;
-  justify-content: center;
-  align-items: center;
-}
-.content {
-  display: flex;
   flex-direction: column;
+  justify-content: center;
   align-items: center;
   gap: 20px;
 }
-.options {
-  display: flex;
-  gap: 12px;
-}
 </style>
+@/components/psych/PsychPane

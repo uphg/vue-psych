@@ -1,5 +1,5 @@
 <template>
-  <Part type="colorSelect" v-slot="data">
+  <PsychPane type="colorSelect" v-slot="data">
     <div class="content">
       <h2>{{ data.message }}</h2>
       <h2 :style="{ color: data.correctResponse }">{{ data.text }}</h2>
@@ -7,18 +7,47 @@
         <button v-for="item, index in data.options" :key="index" @click="onClick()">{{ item }}</button>
       </div>
     </div>
-  </Part>
+  </PsychPane>
 </template>
 
 <script setup lang="ts">
-import { type PropType } from 'vue';
-import Part from '@/components/psych/Part'
+import PsychPane from '@/components/psych/PsychPane.jsx'
+import { usePsych } from '@/components/psych/usePsych';
 
-const props = defineProps({
-  psych: Object as PropType<Record<string, any>>
-})
+const psych = usePsych()
 
 function onClick() {
-  props.psych?.next()
+  psych.trigger('click')
+  psych.next()
 }
 </script>
+
+<style scoped>
+.content {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 20px;
+}
+
+.options {
+  display: flex;
+  gap: 12px;
+}
+
+button {
+  cursor: pointer;
+  padding: 6px 12px;
+  background-color: #fff;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  color: #333;
+}
+button:hover {
+  background-color: #ddd;
+  border-color: #aaa;
+}
+</style>
+@/components/psych/PsychPane
