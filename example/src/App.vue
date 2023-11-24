@@ -2,22 +2,16 @@
   <div class="container">
     <ColorSelect/>
     <SingleSelect/>
-    <PsychPane type="loading">
-      <div class="loading-container">
-        <Loading/>
-        <button @click="next">下一步</button>
-      </div>
-    </PsychPane>
+    <LoadPane/>
   </div>
 </template>
 
 <script setup lang="ts">
-import { onMounted } from 'vue';
-import PsychPane from '@/components/psych/PsychPane';
-import Loading from '@/components/Loading.vue';
-import ColorSelect from './ColorSelect.vue'
-import SingleSelect from './SingleSelect.vue';
-import { useProviderPsych } from '@/components/psych/useProviderPsych';
+import { onMounted } from 'vue'
+import ColorSelect from '@/components/ColorSelect.vue'
+import SingleSelect from '@/components/SingleSelect.vue'
+import LoadPane from '@/components/LoadPane.vue'
+import { useProviderPsych } from 'vue-psych'
 
 const psych = useProviderPsych({
   onFinish() {
@@ -69,31 +63,16 @@ const timeline = [
       }
     ],
     timelineVariables: [
-      { message: '我的生活在大多数情况下接近我的理想状态' },
-      { message: '我的生活条件非常好' },
-      { message: '我对我的生活感到满意' },
-      { message: '目前为止我已经得到了生活中我想得到的重要东西' },
-      { message: '如果生活可以重来，我还愿意过现在这样的生活' },
+      { message: '抛硬币时，你更倾向于选择正面还是反面？' },
+      { message: '当面对困难时，你更倾向于积极应对还是回避？' },
+      { message: '在社交场合中，你更喜欢与大群人交流还是与少数亲密的朋友交流？' },
+      { message: '当面对压力时，你的典型反应是冷静思考还是情绪激动？' },
+      { message: '你更喜欢安排详细的计划和日程安排，还是更喜欢灵活应对变化？' },
     ]
   }
 ]
-
-function next() {
-  psych.next()
-}
 
 onMounted(() => {
   psych.run(timeline)
 })
 </script>
-
-<style>
-.loading-container {
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  gap: 20px;
-}
-</style>

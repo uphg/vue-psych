@@ -1,6 +1,6 @@
 import { inject } from "vue"
-import { hasPsychProviderKey, psychProviderKey } from "@/shared/provider"
-import type { Psych } from "./types"
+import { hasPsychProviderKey, psychProviderKey } from "../shared/provider"
+import type { Psych } from "../types"
 
 export function usePsych(): Psych {
   const hasPsych = inject(hasPsychProviderKey, false)

@@ -1,7 +1,12 @@
-export interface PsychComponent {
-  getData: () => any
+export interface Psych {
+  to: (id: string) => void
+  run: (timeline: any[]) => void
+  prev: () => void
   next: () => void
-  run: () => void
-  setData: (value: any) => void
-  variables: (key: string) => () => void
+  variables: (key: string) => () => unknown
+}
+
+export enum SourceType {
+  Item,
+  Group
 }

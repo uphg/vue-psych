@@ -1,5 +1,5 @@
-import { currentNodeProviderKey } from "@/shared/provider";
-import { computed, defineComponent, inject, type PropType, type Ref } from "vue";
+import { computed, defineComponent, inject, type PropType, type Ref } from "vue"
+import { currentNodeProviderKey } from "../shared/provider"
 
 const PsychPane = defineComponent({
   props: {

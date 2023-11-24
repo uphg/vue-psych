@@ -1,7 +1,7 @@
 import { provide, ref, type Ref } from "vue"
-import { currentNodeProviderKey, hasPsychProviderKey, psychProviderKey } from "@/shared/provider"
-import { isNil } from "@/shared/isNil"
-import type { Psych } from "./types"
+import { currentNodeProviderKey, hasPsychProviderKey, psychProviderKey } from "../shared/provider"
+import { isNil } from "../shared/isNil"
+import type { Psych } from "../types"
 
 export function useProviderPsych(options: Record<string, any>): Psych {
   const currentNode = ref<any>({})
