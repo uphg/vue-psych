@@ -1,7 +1,7 @@
 import { provide, ref, type Ref } from "vue"
 import { currentNodeProviderKey, hasPsychProviderKey, psychProviderKey } from "../shared/provider"
 import { isNil } from "../shared/isNil"
-import type { Psych } from "../types"
+import { SourceType, type Psych } from "../types"
 
 export function useProviderPsych(options: Record<string, any>): Psych {
   const currentNode = ref<any>({})
@@ -94,7 +94,7 @@ function createTimeLineNode(timeline: any[], idNodes: Ref<Map<string, any>>) {
           const newNode = {
             index,
             source: childNode,
-            sourceType: 'group',
+            sourceType: SourceType.Group,
             group: timelineNode,
             position: { childIndex, varsIndex }
           }
@@ -104,7 +104,7 @@ function createTimeLineNode(timeline: any[], idNodes: Ref<Map<string, any>>) {
       })
     } else {
       timelineNode.id && idNodes.value.set(timelineNode.id, index)
-      result.push({ source: timelineNode, sourceType: 'item', index })
+      result.push({ source: timelineNode, sourceType: SourceType.Item, index })
       index += 1
     }
   }

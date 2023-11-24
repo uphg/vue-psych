@@ -1,5 +1,6 @@
 import { computed, defineComponent, inject, type PropType, type Ref } from "vue"
 import { currentNodeProviderKey } from "../shared/provider"
+import { SourceType } from "../types"
 
 const PsychPane = defineComponent({
   props: {
@@ -12,7 +13,7 @@ const PsychPane = defineComponent({
     function renderSlot() {
       const timelineNode = currentNode!.value
       if (!timelineNode || timelineNode?.source?.type !== props.type) return void 0
-      if (timelineNode.sourceType === 'item') {
+      if (timelineNode.sourceType === SourceType.Item) {
         return context.slots.default?.(timelineNode.source.data)
       } else {
         const data = handleVariables(timelineNode.source?.data)
