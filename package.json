@@ -15,7 +15,6 @@
     "lint": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs,.ts,.tsx,.cts,.mts --fix --ignore-path .gitignore"
   },
   "dependencies": {
-    "small-emitter": "^0.1.7",
     "vue": "^3.3.4"
   },
   "devDependencies": {
