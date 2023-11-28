@@ -52,7 +52,7 @@ const timeline = [
     choices: ['f', 'j'],
     data: {
       color: 'blue',
-      correctResponse: 'k'
+      correctResponse: 'f'
     }
   },
   {
