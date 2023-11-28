@@ -1,5 +1,5 @@
 <template>
-  <PsychPane type="singleSelect" v-slot="data">
+  <PsychPane name="singleSelect" v-slot="data">
     <div class="content">
       <p>{{ data?.m }}</p>
       <div v-for="(item, index) in data?.options" :key="index">
@@ -8,13 +8,13 @@
           <span>{{ item }}</span>
         </label>
       </div>
-      <pre>{{ JSON.stringify(data, null, 2) }}</pre>
+      <!-- <pre>{{ JSON.stringify(data, null, 2) }}</pre> -->
     </div>
   </PsychPane>
 </template>
 
 <script setup lang="ts">
-import { PsychPane, usePsych } from 'vue-psych'
+import { PsychPane, usePsych } from '../../../vue-psych'
 
 const psych = usePsych()
 

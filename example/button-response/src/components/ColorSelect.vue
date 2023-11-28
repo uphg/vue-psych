@@ -1,17 +1,22 @@
 <template>
-  <PsychPane type="colorSelect" v-slot="data">
+  <PsychPane name="colorSelect" v-slot="data">
     <div class="content">
       <h2>{{ data.message }}</h2>
       <h2 :style="{ color: data.correctResponse }">{{ data.text }}</h2>
       <div class="options">
-        <button v-for="item, index in data.options" :key="index" @click="onClick()">{{ item }}</button>
+        <Button
+          v-for="item, index in data.options"
+          :key="index"
+          :loading="index === 2"
+          @click="onClick()"
+        >{{ item }}</Button>
       </div>
     </div>
   </PsychPane>
 </template>
 
 <script setup lang="ts">
-import { PsychPane, usePsych } from 'vue-psych';
+import { usePsych } from '../../../vue-psych'
 
 const psych = usePsych()
 

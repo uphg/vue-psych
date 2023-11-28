@@ -4,9 +4,11 @@ export interface Psych {
   prev: () => void
   next: () => void
   variables: (key: string) => () => unknown
+  trigger: (eventName: string, options: Record<string, any>) => void
+  setData: (obj: Record<string, any>) => void
 }
 
-export enum SourceType {
+export enum NodeType {
   Item,
   Group
 }

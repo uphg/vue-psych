@@ -11,7 +11,7 @@ import { onMounted } from 'vue'
 import ColorSelect from '@/components/ColorSelect.vue'
 import SingleSelect from '@/components/SingleSelect.vue'
 import LoadPane from '@/components/LoadPane.vue'
-import { useProviderPsych } from 'vue-psych'
+import { useProviderPsych } from '../../vue-psych'
 
 const psych = useProviderPsych({
   onFinish() {
@@ -22,7 +22,7 @@ const psych = useProviderPsych({
 
 const timeline = [
   {
-    type: 'colorSelect',
+    name: 'colorSelect',
     data: {
       message: '该文字是什么颜色',
       text: 'Green',
@@ -31,7 +31,7 @@ const timeline = [
     }
   },
   {
-    type: 'colorSelect',
+    name: 'colorSelect',
     data: {
       message: '该文字是什么颜色',
       text: 'Red',
@@ -40,7 +40,7 @@ const timeline = [
     }
   },
   {
-    type: 'colorSelect',
+    name: 'colorSelect',
     data: {
       message: '该文字是什么颜色',
       text: 'Blue',
@@ -51,11 +51,11 @@ const timeline = [
   {
     timeline: [
       {
-        type: 'loading',
+        name: 'loading',
         trialDuration: 1000
       },
       {
-        type: 'singleSelect',
+        name: 'singleSelect',
         data: {
           options: ['选项1', '选项2', '选项3', '选项4', '选项5'],
           m: psych.variables('message')

@@ -1,5 +1,5 @@
 <template>
-  <PsychPane type="loading">
+  <PsychPane name="loading">
     <div class="loading-container">
       <Loading/>
       <button @click="next">下一步</button>
@@ -8,7 +8,7 @@
 </template>
 
 <script setup lang="ts">
-import { PsychPane, usePsych } from 'vue-psych'
+import { PsychPane, usePsych } from '../../../vue-psych'
 import Loading from './Loading.vue'
 
 const psych = usePsych()
