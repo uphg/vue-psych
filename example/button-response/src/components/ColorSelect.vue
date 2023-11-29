@@ -3,12 +3,14 @@
     <div class="content">
       <h2>{{ data.message }}</h2>
       <h2 :style="{ color: data.correctResponse }">{{ data.text }}</h2>
+      <h3>{{ data.count }}</h3>
+      <Button @click="add">+1</Button>
       <div class="options">
         <Button
           v-for="item, index in data.options"
           :key="index"
           :loading="index === 2"
-          @click="onClick()"
+          @click="onClick"
         >{{ item }}</Button>
       </div>
     </div>
@@ -16,13 +18,18 @@
 </template>
 
 <script setup lang="ts">
-import { usePsych } from '../../../vue-psych'
+import { PsychPane, usePsych, Button } from '../../../vue-psych'
 
 const psych = usePsych()
 
 function onClick() {
   psych.trigger('click')
   psych.next()
+}
+
+function add() {
+  const data = psych.getData()
+  psych.setData({ count: (data.count as number) += 1 })
 }
 </script>
 

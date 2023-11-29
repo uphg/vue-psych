@@ -1,13 +1,14 @@
+import type { Psych, PsychPluginHandler, TrialNode } from "../types"
+
 export type KeyPredicate = (event: KeyboardEvent) => boolean
 export type KeyFilter = true | string | string[] | KeyPredicate
-export type Handler = (event: KeyboardEvent) => void
 
 export function keyboardResponse() {
   let predicate: KeyPredicate | undefined
-  let handler: Handler | undefined | (() => void)
+  let handler: PsychPluginHandler | undefined | (() => void)
 
-  function load(trial: any, psych: any, _handler?: Handler) {
-    const keys = trial.source?.choices
+  function load(trial: TrialNode, psych: Psych, _handler?: PsychPluginHandler) {
+    const keys = trial.source?.choices!
     predicate = createKeyPredicate(keys)
     handler = _handler ?? ((event) => {
       psych.trigger('keyboard', { key: event.key })

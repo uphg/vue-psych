@@ -1,3 +1,4 @@
+import { isFunction } from "./isFunction"
 
 type BaseType = string | number | boolean | null | undefined | bigint | symbol
 
@@ -6,7 +7,7 @@ export function cloneDeep(value: any) {
 }
 
 function baseCloneDeep<T extends BaseType | object>(value: T, cache = new WeakMap()): T | Object | Array<unknown> | Date | RegExp {
-  if (!isObject<Record<string, any>>(value)) return value 
+  if (!isObject<Record<string, any>>(value) || isFunction(value)) return value 
   if (cache.has(value)) return cache.get(value)
 
   let result: RegExp | Date | Array<unknown> | Record<string, any>

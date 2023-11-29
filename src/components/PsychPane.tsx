@@ -1,11 +1,15 @@
-import { computed, defineComponent, inject, nextTick, onUnmounted, type PropType, type Ref } from "vue"
+import { computed, defineComponent, inject, nextTick, onUnmounted, type PropType, type Ref, type SlotsType } from "vue"
 import { currentNodeProviderKey, emitterProviderKey, psychProviderKey } from "../shared/provider"
-import { NodeType } from "../types"
+import { handleVariables } from "../shared/handleVariables"
+// import type { TimelineData } from "../types"
 
 const PsychPane = defineComponent({
   props: {
     name: String as PropType<string>
   },
+  // slots: Object as SlotsType<{
+  //   default(props: { foo: string; bar: number }): void
+  // }>,
   setup(props, context) {
     const slot = computed(renderSlot)
     const invisible = computed(() => {
@@ -43,27 +47,12 @@ const PsychPane = defineComponent({
 
     function renderSlot() {
       if (invisible.value) return
-      const { nodeType, source } = currentNode!.value ?? {}
-      if (nodeType === NodeType.Item) {
-        return context.slots.default?.(source.data)
-      } else {
-        const data = handleVariables(source?.data)
-        return context.slots.default?.(data)
-      }
+      const { outputData, sourceGroup } = currentNode!.value ?? {}
+      return context.slots.default?.(sourceGroup ? handleVariables(outputData) : outputData)
     }
 
     return () => slot.value
   }
 })
-
-function handleVariables(item: Record<string, any>) {
-  if (!item) return item
-  const result: Record<string, any> = {}
-  const keys = Object.keys(item)
-  for (const key of keys) {
-    result[key] = typeof item[key] === 'function' ? item[key]() : item[key]
-  }
-  return result
-}
 
 export default PsychPane
