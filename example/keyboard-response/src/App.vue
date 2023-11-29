@@ -9,8 +9,7 @@
 
 <script setup lang="ts">
 import { onMounted } from 'vue'
-import { useProviderPsych } from '../../vue-psych'
-import { keyboardResponse } from '../../vue-psych'
+import { useProviderPsych, keyboardResponse } from '../../vue-psych'
 import Test from './components/Test.vue'
 import Welcome from './components/Welcome.vue'
 import Instructions from './components/Instructions.vue'
@@ -18,8 +17,8 @@ import Fixation from './components/Fixation.vue'
 
 const psych = useProviderPsych({
   onFinish() {
-    console.log('psych.timelineNodes')
-    console.log(psych.getTimelineNodes())
+    console.log('psych.getTrials')
+    console.log(psych.getTrials())
   }
 })
 

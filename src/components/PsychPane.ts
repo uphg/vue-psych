@@ -1,7 +1,5 @@
 import { computed, defineComponent, inject, nextTick, onUnmounted, type PropType, type Ref, type SlotsType } from "vue"
 import { currentNodeProviderKey, emitterProviderKey, psychProviderKey } from "../shared/provider"
-import { handleVariables } from "../shared/handleVariables"
-// import type { TimelineData } from "../types"
 
 const PsychPane = defineComponent({
   props: {
@@ -47,8 +45,7 @@ const PsychPane = defineComponent({
 
     function renderSlot() {
       if (invisible.value) return
-      const { outputData, sourceGroup } = currentNode!.value ?? {}
-      return context.slots.default?.(sourceGroup ? handleVariables(outputData) : outputData)
+      return context.slots.default?.(currentNode?.value?.outputData)
     }
 
     return () => slot.value

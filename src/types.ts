@@ -1,3 +1,5 @@
+import type { TimelineVariables } from "./shared/variables"
+
 type Key = string | number | symbol
 
 export interface Psych {
@@ -7,7 +9,7 @@ export interface Psych {
   to(id: string): void
   setData(obj: TimelineData): void
   getData(): TimelineData
-  variables(key: string): () => unknown,
+  variables(key: string): TimelineVariables,
   trigger(eventName: string, options?: Record<string, any>): void
   getTrials(): TimelineNode[]
 }

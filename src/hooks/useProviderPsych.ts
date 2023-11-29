@@ -1,9 +1,10 @@
 import { provide, ref, type Ref } from "vue"
-import { currentNodeProviderKey, hasPsychProviderKey, psychProviderKey, emitterProviderKey } from "../shared/provider"
+import { currentNodeProviderKey, hasPsychProviderKey, psychProviderKey, emitterProviderKey, variablesType } from "../shared/provider"
 import { isNil } from "../shared/isNil"
 import Emitter from '../shared/emitter'
-import { cloneDeep } from "../shared/cloneDeep"
+import { cloneData } from "../shared/cloneData"
 import { type Psych } from "../types"
+import { TimelineVariables } from "../shared/variables"
 
 export function useProviderPsych(options: Record<string, any>): Psych {
   const trials = ref<any[]>([])
@@ -84,10 +85,7 @@ export function useProviderPsych(options: Record<string, any>): Psych {
   }
 
   function variables(key: string) {
-    return () => {
-      const { sourceGroup, position } = currentNode.value ?? {}
-      return sourceGroup?.timelineVariables[position?.varsIndex]?.[key]
-    }
+    return new TimelineVariables(key)
   }
 
   function setData(obj: Record<string, any>) {
@@ -123,20 +121,20 @@ function createTrialNodes(timeline: any[], idNodes: Ref<Map<string, any>>) {
     if (node.timeline) {
       node.timelineVariables.forEach((_: unknown, varsIndex: number) => {
         node.timeline.forEach((childNode: Record<string, any>, childIndex: number) => {
-          const newNode = {
+          const newNode: Record<string, any> = {
             index,
             source: childNode,
             sourceGroup: node,
-            position: { childIndex, varsIndex },
-            outputData: cloneDeep(childNode.data)
+            position: { childIndex, varsIndex }
           }
+          newNode.outputData = cloneData(childNode.data, newNode)
           result.push(newNode)
           index += 1
         })
       })
     } else {
       node.id && idNodes.value.set(node.id, index)
-      result.push({ index, source: node, outputData: cloneDeep(node.data) })
+      result.push({ index, source: node, outputData: cloneData(node.data) })
       index += 1
     }
   }

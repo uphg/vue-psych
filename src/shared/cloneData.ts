@@ -1,13 +1,22 @@
-import { isFunction } from "./isFunction"
+import { isVariables } from "./variables"
 
 type BaseType = string | number | boolean | null | undefined | bigint | symbol
 
-export function cloneDeep(value: any) {
-  return baseCloneDeep(value)
+export function cloneData(value: any, node?: any) {
+  return baseCloneDeep(value, new WeakMap(), node)
 }
 
-function baseCloneDeep<T extends BaseType | object>(value: T, cache = new WeakMap()): T | Object | Array<unknown> | Date | RegExp {
-  if (!isObject<Record<string, any>>(value) || isFunction(value)) return value 
+function baseCloneDeep<T extends BaseType | object>(
+  value: T,
+  cache: WeakMap<any, any>,
+  node?: any
+): T | Object | Array<unknown> | Date | RegExp {
+  if (!isObject<Record<string, any>>(value)) return value
+  if (node && isVariables(value)) {
+    const { sourceGroup, position } = node ?? {}
+    return sourceGroup?.timelineVariables[position?.varsIndex]?.[value.key]
+  }
+
   if (cache.has(value)) return cache.get(value)
 
   let result: RegExp | Date | Array<unknown> | Record<string, any>
@@ -27,7 +36,7 @@ function baseCloneDeep<T extends BaseType | object>(value: T, cache = new WeakMa
   for (const key in value) {
     if (value.hasOwnProperty(key)) {
       const item = value[key];
-      (result as Record<string, any>)[key] = baseCloneDeep(item, cache)
+      (result as Record<string, any>)[key] = baseCloneDeep(item, cache, node)
     }
   }
 
