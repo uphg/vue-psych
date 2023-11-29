@@ -1,12 +1,5 @@
 type Key = string | number | symbol
 
-export type PsychPluginHandler = (event: KeyboardEvent) => void
-
-export type PsychPlugin = () => {
-  load(trial: TimelineNode, psych: Psych, _handler?: PsychPluginHandler): void
-  unload(): void
-}
-
 export interface Psych {
   run(timeline: TimelineNode[]): void
   next(): void
@@ -39,3 +32,10 @@ export interface TrialNode {
   source: TimelineNode
   outputData?: TimelineData
 }
+
+export type PsychPlugin = () => {
+  load(trial: TimelineNode, psych: Psych, _handler?: PsychPluginHandler): void
+  unload(): void
+}
+
+export type PsychPluginHandler = (event: KeyboardEvent) => void

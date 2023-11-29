@@ -1,5 +1,4 @@
 export { useProviderPsych } from './hooks/useProviderPsych'
 export { usePsych } from './hooks/usePsych'
 export { default as PsychPane } from './components/PsychPane'
-export { default as Button } from './components/Button.vue'
 export * from './shared/plugins'

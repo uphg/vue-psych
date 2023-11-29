@@ -8,10 +8,10 @@
 
 <script setup lang="ts">
 import { onMounted } from 'vue'
+import { useProviderPsych } from 'vue-psych'
 import ColorSelect from '@/components/ColorSelect.vue'
 import SingleSelect from '@/components/SingleSelect.vue'
 import LoadPane from '@/components/LoadPane.vue'
-import { useProviderPsych } from '../../vue-psych'
 
 const psych = useProviderPsych({
   onFinish() {
