@@ -9,7 +9,7 @@
 
 <script setup lang="ts">
 import { onMounted } from 'vue'
-import { useProviderPsych, keyboardResponse } from '../../vue-psych'
+import { useProviderPsych, keyboardResponse } from 'vue-psych'
 import Test from './components/Test.vue'
 import Welcome from './components/Welcome.vue'
 import Instructions from './components/Instructions.vue'
