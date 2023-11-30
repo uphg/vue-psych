@@ -1,28 +1,29 @@
-import { provide, ref, type Ref } from "vue"
+import { provide, ref } from "vue"
 import { currentNodeProviderKey, hasPsychProviderKey, psychProviderKey, emitterProviderKey, variablesType } from "../shared/provider"
 import { isNil } from "../shared/isNil"
 import Emitter from '../shared/emitter'
 import { cloneData } from "../shared/cloneData"
-import { type Psych } from "../types"
+import { type TimelineNode, type TrialNode } from "../types"
 import { TimelineVariables } from "../shared/variables"
 
-export function useProviderPsych(options: Record<string, any>): Psych {
-  const trials = ref<any[]>([])
-  const currentNode = ref<any>({})
+export type Psych = ReturnType<typeof useProviderPsych>
+export type ProviderPsychOptions = { onStart?(): void, onFinish?(): void }
+
+export function useProviderPsych(options: ProviderPsychOptions) {
+  const trials = ref<TrialNode[]>([])
+  const currentNode = ref({} as TrialNode)
   const activeIndex = ref(0)
-  const idNodes = ref<Map<string, any>>(new Map())
   const emitter = new Emitter()
 
   const psych = {
     trigger, run, to, prev, next, variables, setData, getData,
-    getTrials() {
-      return trials.value
-    }
+    getTrials: () => trials.value
   }
 
   let timerId: number | null
 
-  function run(timeline: any[]) {
+  function run(timeline: TimelineNode[]) {
+    options.onStart?.()
     updateTimelineNode(timeline)
     runCurrentTrial()
   }
@@ -53,10 +54,12 @@ export function useProviderPsych(options: Record<string, any>): Psych {
     emitter.emit('start')
   }
 
-  function to(id: string) {
-    const index = idNodes.value.get(id)
-    if (isNil(index)) return
+  function to(index: number) {
+    const lastIndex = trials.value.length - 1
+    if (isNil(index) || index < 0 || index > lastIndex) return
+    index !== 0 && finish()
     activeIndex.value = index
+    runCurrentTrial()
   }
 
   function prev() {
@@ -80,15 +83,15 @@ export function useProviderPsych(options: Record<string, any>): Psych {
     timerId && window.clearTimeout(timerId)
   }
 
-  function updateTimelineNode(timeline: any[]) {
-    trials.value = createTrialNodes(timeline, idNodes)
+  function updateTimelineNode(timeline: TimelineNode[]) {
+    trials.value = createTrialNodes(timeline)
   }
 
   function variables(key: string) {
     return new TimelineVariables(key)
   }
 
-  function setData(obj: Record<string, any>) {
+  function setData<T extends Record<string, any>>(obj: T) {
     const { outputData } = trials.value[activeIndex.value]
     trials.value[activeIndex.value].outputData = Object.assign(outputData ?? {}, obj)
   }
@@ -97,9 +100,10 @@ export function useProviderPsych(options: Record<string, any>): Psych {
     return trials.value[activeIndex.value].outputData
   }
 
-  function trigger(eventName: string, options?: Record<string, any>) {
+  function trigger<T extends Record<string, any>>(eventName: string, options?: T) {
     const now = performance.now()
     const { triggers } = currentNode.value
+    if (!triggers) return
     const prev = triggers.length > 0 ? triggers[triggers.length - 1] : null
     const lastTime = prev?.rt ?? currentNode.value.startTime
     triggers.push({ eventName, now, rt: now - lastTime, ...(options ? options : {})})
@@ -113,14 +117,14 @@ export function useProviderPsych(options: Record<string, any>): Psych {
   return psych
 }
 
-function createTrialNodes(timeline: any[], idNodes: Ref<Map<string, any>>) {
+function createTrialNodes(timeline: TimelineNode[]) {
   const result: any[] = []
   let index = 0
 
   for (const node of timeline) {
     if (node.timeline) {
-      node.timelineVariables.forEach((_: unknown, varsIndex: number) => {
-        node.timeline.forEach((childNode: Record<string, any>, childIndex: number) => {
+      node.timelineVariables?.forEach((_: unknown, varsIndex: number) => {
+        node.timeline!.forEach((childNode: Record<string, any>, childIndex: number) => {
           const newNode: Record<string, any> = {
             index,
             source: childNode,
@@ -133,7 +137,6 @@ function createTrialNodes(timeline: any[], idNodes: Ref<Map<string, any>>) {
         })
       })
     } else {
-      node.id && idNodes.value.set(node.id, index)
       result.push({ index, source: node, outputData: cloneData(node.data) })
       index += 1
     }

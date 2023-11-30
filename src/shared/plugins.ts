@@ -1,4 +1,5 @@
-import type { Psych, PsychPluginHandler, TrialNode } from "../types"
+import type { PsychPluginHandler, TrialNode } from "../types"
+import type { Psych } from '../hooks/useProviderPsych'
 
 export type KeyPredicate = (event: KeyboardEvent) => boolean
 export type KeyFilter = true | string | string[] | KeyPredicate

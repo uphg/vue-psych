@@ -1,18 +1,6 @@
-import type { TimelineVariables } from "./shared/variables"
+import type { Psych } from './hooks/useProviderPsych'
 
 type Key = string | number | symbol
-
-export interface Psych {
-  run(timeline: TimelineNode[]): void
-  next(): void
-  prev(): void
-  to(id: string): void
-  setData(obj: TimelineData): void
-  getData(): TimelineData
-  variables(key: string): TimelineVariables,
-  trigger(eventName: string, options?: Record<string, any>): void
-  getTrials(): TimelineNode[]
-}
 
 export interface TimelineData {
   [key: Key]: string | number | symbol | boolean | ReturnType<Psych['variables']> | null | Array<unknown> | TimelineData
@@ -26,13 +14,23 @@ export interface TimelineNode {
   data?: TimelineData
   timeline?: TimelineNode[]
   timelineVariables?: TimelineData[]
-  onStart?(data: TimelineData): void
-  onFinish?(data: TimelineData): void
+  onStart?(data?: TimelineData): void
+  onFinish?(data?: TimelineData): void
 }
 
 export interface TrialNode {
+  index: number
   source: TimelineNode
+  sourceGroup: TimelineNode
   outputData?: TimelineData
+  startTime: number
+  timeElapsed: number
+  triggers?: Array<{
+    eventName: string
+    now: number
+    rt: number
+    [key: string]: unknown
+  }>
 }
 
 export type PsychPlugin = () => {
