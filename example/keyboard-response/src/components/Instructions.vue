@@ -4,7 +4,7 @@
       <p>在本次实验中，屏幕中心会出现一个圆。</p><p>如果圆是<strong>蓝色</strong>，则你需要尽可能快的按下 "F" 键。</p>
       <p>如果圆是<strong>橙色</strong>，你需要以最快的速度按下 "J" 键。</p>
       <div style="width: 700px; display: flex; justify-content: center;">
-      <div style="display: flex; flex-direction: column; align-items: center;">
+      <div style="display: flex; flex-direction: column; align-items: center; margin-right: 12px;">
         <div class="blue" :style="{ backgroundColor: 'blue' }"></div>
         <p class="small"><strong>按 "F" 键</strong></p>
       </div>
@@ -27,8 +27,8 @@ import { PsychPane } from 'vue-psych'
   text-align: center;
 }
 .blue, .orange {
-  width: 280px;
-  height: 280px;
+  width: 240px;
+  height: 240px;
   border-radius: 140px;
 }
 </style>

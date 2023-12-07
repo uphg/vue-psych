@@ -10,8 +10,8 @@ import { PsychPane } from 'vue-psych'
 
 <style scoped>
 .block {
-  width: 280px;
-  height: 280px;
+  width: 240px;
+  height: 240px;
   border-radius: 50%;
 }
 </style>
