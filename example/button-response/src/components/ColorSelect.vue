@@ -10,6 +10,7 @@
           :loading="index === 2"
           @click="onClick"
         >{{ item }}</button>
+        <button @click="toSelect">跳转选择题</button>
       </div>
     </div>
   </PsychPane>
@@ -23,6 +24,10 @@ const psych = usePsych()
 function onClick() {
   psych.trigger('click')
   psych.next()
+}
+
+function toSelect() {
+  psych.to(3, 0)
 }
 </script>
 

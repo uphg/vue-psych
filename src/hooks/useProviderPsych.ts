@@ -4,6 +4,7 @@ import Emitter from "../shared/emitter"
 import type { TimelineNode } from "../types"
 import { currentNodeProviderKey, emitterProviderKey, hasPsychProviderKey, psychProviderKey } from "../shared/provider"
 import { TimelineVariables } from "../shared/variables"
+import { isNil } from "../shared/isNil"
 
 export function useProviderPsych(options: any) {
   const timeline = ref<TimelineNode[]>([])
@@ -14,7 +15,7 @@ export function useProviderPsych(options: any) {
     childIndex: -1,
   })
   const emitter = new Emitter()
-  const psych = { run, next, variables, trigger, getTrialNodes: () => trialNodes.value }
+  const psych = { run, next, to, variables, trigger, getTrialNodes: () => trialNodes.value }
   let timerId: number | null = null
 
   provide(currentNodeProviderKey, test)
@@ -69,6 +70,8 @@ export function useProviderPsych(options: any) {
 
   function start() {
     emitter.emit('start')
+    console.log('progress.value')
+    console.log({...progress.value})
     test.value = getCurrentTest(progress.value)
     test.value.parameters.onStart?.()
     const { trialDuration } = test.value.parameters
@@ -88,6 +91,8 @@ export function useProviderPsych(options: any) {
   }
 
   function getCurrentTest({ index, childIndex }: any) {
+    console.log('trialNodes.value')
+    console.log([...trialNodes.value])
     return childIndex < 0 ? trialNodes.value[index] : trialNodes.value[index].trials[childIndex]
   }
 
@@ -101,6 +106,16 @@ export function useProviderPsych(options: any) {
 
   function cleanup() {
     timerId && window.clearTimeout(timerId)
+  }
+
+  function to(index: number, childIndex: number) {
+    if (isNil(index)) return
+    progress.value.index = index
+    if (!isNil(childIndex)) {
+      progress.value.childIndex = childIndex
+    }
+
+    start()
   }
 
   return psych
