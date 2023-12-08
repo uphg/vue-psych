@@ -2,19 +2,19 @@ import { isVariables } from "./variables"
 
 type BaseType = string | number | boolean | null | undefined | bigint | symbol
 
-export function cloneData(value: any, node?: any) {
-  return baseCloneDeep(value, new WeakMap(), node)
+export function cloneData(value: any, node?: any, location?: any) {
+  return baseCloneDeep(value, new WeakMap(), node, location)
 }
 
 function baseCloneDeep<T extends BaseType | object>(
   value: T,
   cache: WeakMap<any, any>,
-  node?: any
+  node?: any,
+  location?: any
 ): T | Object | Array<unknown> | Date | RegExp {
   if (!isObject<Record<string, any>>(value)) return value
   if (node && isVariables(value)) {
-    const { sourceGroup, position } = node ?? {}
-    return sourceGroup?.timelineVariables[position?.varsIndex]?.[value.key]
+    return node?.timelineVariables[location[0]]?.[value.key]
   }
 
   if (cache.has(value)) return cache.get(value)
@@ -36,7 +36,7 @@ function baseCloneDeep<T extends BaseType | object>(
   for (const key in value) {
     if (value.hasOwnProperty(key)) {
       const item = value[key];
-      (result as Record<string, any>)[key] = baseCloneDeep(item, cache, node)
+      (result as Record<string, any>)[key] = baseCloneDeep(item, cache, node, location)
     }
   }
 

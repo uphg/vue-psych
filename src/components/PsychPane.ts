@@ -1,6 +1,6 @@
 import { computed, defineComponent, inject, nextTick, onUnmounted, type PropType, type Ref, type SlotsType } from "vue"
 import { currentNodeProviderKey, emitterProviderKey, psychProviderKey } from "../shared/provider"
-import type { Psych } from "@/hooks/useProviderPsych"
+// import type { Psych } from "@/hooks/useProviderPsych"
 import type { TrialNode } from "@/types"
 import type Emitter from "../shared/emitter"
 
@@ -14,11 +14,12 @@ const PsychPane = defineComponent({
   setup(props, context) {
     const slot = computed(renderSlot)
     const invisible = computed(() => {
-      const { source } = currentNode!.value ?? {}
-      return !source || source?.name !== props.name
+      const { parameters } = test!.value ?? {}
+      return !parameters || parameters?.name !== props.name
     })
     const psych = inject<Psych>(psychProviderKey)
-    const currentNode = inject<Ref<TrialNode>>(currentNodeProviderKey)
+    // const currentNode = inject<Ref<TrialNode>>(currentNodeProviderKey)
+    const test = inject<Ref<Record<string, any>>>(currentNodeProviderKey)
     const emitter = inject<Emitter>(emitterProviderKey)!
 
     let plugin: any
@@ -33,10 +34,10 @@ const PsychPane = defineComponent({
 
     function onStart() {
       nextTick(() => {
-        const { source } = currentNode!.value ?? {}
-        if (invisible.value || !source?.type) return
-        plugin = source.type?.()
-        plugin.load?.(currentNode!.value, psych)
+        const { parameters } = test!.value ?? {}
+        if (invisible.value || !parameters?.type) return
+        plugin = parameters.type?.()
+        plugin.load?.(test!.value, psych)
       })
     }
 
@@ -48,7 +49,7 @@ const PsychPane = defineComponent({
 
     function renderSlot() {
       if (invisible.value) return
-      return context.slots.default?.(currentNode?.value?.outputData)
+      return context.slots.default?.(test!.value?.trialData)
     }
 
     return () => slot.value

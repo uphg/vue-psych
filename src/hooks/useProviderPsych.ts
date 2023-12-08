@@ -1,49 +1,77 @@
 import { provide, ref } from "vue"
-import { currentNodeProviderKey, hasPsychProviderKey, psychProviderKey, emitterProviderKey, variablesType } from "../shared/provider"
-import { isNil } from "../shared/isNil"
-import Emitter from '../shared/emitter'
 import { cloneData } from "../shared/cloneData"
-import { type TimelineNode, type TrialNode } from "../types"
+import Emitter from "../shared/emitter"
+import type { TimelineNode } from "../types"
+import { currentNodeProviderKey, emitterProviderKey, hasPsychProviderKey, psychProviderKey } from "../shared/provider"
 import { TimelineVariables } from "../shared/variables"
 
-export type Psych = ReturnType<typeof useProviderPsych>
-export type ProviderPsychOptions = { onStart?(): void, onFinish?(): void }
-
-export function useProviderPsych(options: ProviderPsychOptions) {
-  const trials = ref<TrialNode[]>([])
-  const currentNode = ref({} as TrialNode)
-  const activeIndex = ref(0)
+export function useProviderPsych(options: any) {
+  const timeline = ref<TimelineNode[]>([])
+  const trialNodes = ref<any[]>([])
+  const test = ref<any>({})
+  const progress = ref({
+    index: 0,
+    childIndex: -1,
+  })
   const emitter = new Emitter()
+  const psych = { run, next, variables, trigger, getTrialNodes: () => trialNodes.value }
+  let timerId: number | null = null
 
-  const psych = {
-    trigger, run, to, prev, next, variables, setData, getData,
-    getTrials: () => trials.value
+  provide(currentNodeProviderKey, test)
+  provide(hasPsychProviderKey, true)
+  provide(psychProviderKey, psych)
+  provide(emitterProviderKey, emitter)
+
+  function run(nodes: TimelineNode[]) {
+    timeline.value = nodes
+    trialNodes.value = createTrialNodes(nodes)
+    if (trialNodes.value[0].trials) {
+      progress.value.childIndex = 0
+    }
+    start()
   }
 
-  let timerId: number | null
-
-  function run(timeline: TimelineNode[]) {
-    options.onStart?.()
-    updateTimelineNode(timeline)
-    runCurrentTrial()
+  function next() {
+    finish()
+    progressIncrease()
   }
 
-  function finish() {
-    const now = performance.now()
-    currentNode.value.source?.onFinish?.(currentNode.value.source?.data)
-    currentNode.value.timeElapsed = now - currentNode.value.startTime
-    cleanup()
-    emitter.emit('finish')
+  function progressIncrease() {
+    const { parentNode } = test.value
+    const { index, childIndex } = progress.value
+    const nextNode = trialNodes.value?.[index + 1]
+    if (parentNode?.trials) {
+      const maxChildIndex = parentNode.trials.length - 1
+      const maxIndex = trialNodes.value.length - 1
+      if (childIndex < maxChildIndex) {
+        progress.value.childIndex = childIndex < 0 ? 0 : (childIndex + 1)
+        start()
+      } else if (index < maxIndex) {
+        test.value.parentNode.parameters.onFinish?.()
+        progress.value.index += 1
+        progress.value.childIndex = nextNode?.parameters?.timeline ? 0 : -1
+        start()
+      } else {
+        test.value.parentNode.parameters.onFinish?.()
+        options.onFinish?.()
+      }
+    } else {
+      const maxIndex = trialNodes.value.length - 1
+      if (index < maxIndex) {
+        progress.value.index += 1
+        progress.value.childIndex = nextNode?.parameters?.timeline ? 0 : -1
+        start()
+      } else {
+        options.onFinish?.()
+      }
+    }
   }
 
-  function runCurrentTrial() {
-    const now = performance.now()
-    currentNode.value = trials.value[activeIndex.value]
-    const { trialDuration } = currentNode.value.source
-
-    currentNode.value.source?.onStart?.(currentNode.value.source?.data)
-    currentNode.value.startTime = now
-    currentNode.value.triggers = []
+  function start() {
+    emitter.emit('start')
+    test.value = getCurrentTest(progress.value)
+    test.value.parameters.onStart?.()
+    const { trialDuration } = test.value.parameters
 
     if (typeof trialDuration === 'number') {
       timerId = window.setTimeout(() => {
@@ -51,68 +79,29 @@ export function useProviderPsych(options: ProviderPsychOptions) {
         next()
       }, trialDuration)
     }
-    emitter.emit('start')
   }
 
-  function to(index: number) {
-    const lastIndex = trials.value.length - 1
-    if (isNil(index) || index < 0 || index > lastIndex) return
-    index !== 0 && finish()
-    activeIndex.value = index
-    runCurrentTrial()
+  function finish() {
+    test.value.parameters.onFinish?.()
+    cleanup()
+    emitter.emit('finish')
   }
 
-  function prev() {
-    if (activeIndex.value <= 0) return
-    activeIndex.value -= 1
-    runCurrentTrial()
+  function getCurrentTest({ index, childIndex }: any) {
+    return childIndex < 0 ? trialNodes.value[index] : trialNodes.value[index].trials[childIndex]
   }
 
-  function next() {
-    finish()
-    const lastIndex = trials.value.length - 1
-    if (activeIndex.value >= lastIndex) {
-      options.onFinish?.()
-      return
-    }
-    activeIndex.value += 1
-    runCurrentTrial()
-  }
+  function trigger(eventName: string, options?: any) {
 
-  function cleanup() {
-    timerId && window.clearTimeout(timerId)
-  }
-
-  function updateTimelineNode(timeline: TimelineNode[]) {
-    trials.value = createTrialNodes(timeline)
   }
 
   function variables(key: string) {
     return new TimelineVariables(key)
   }
 
-  function setData<T extends Record<string, any>>(obj: T) {
-    const { outputData } = trials.value[activeIndex.value]
-    trials.value[activeIndex.value].outputData = Object.assign(outputData ?? {}, obj)
+  function cleanup() {
+    timerId && window.clearTimeout(timerId)
   }
-
-  function getData() {
-    return trials.value[activeIndex.value].outputData
-  }
-
-  function trigger<T extends Record<string, any>>(eventName: string, options?: T) {
-    const now = performance.now()
-    const { triggers } = currentNode.value
-    if (!triggers) return
-    const prev = triggers.length > 0 ? triggers[triggers.length - 1] : null
-    const lastTime = prev?.rt ?? currentNode.value.startTime
-    triggers.push({ eventName, now, rt: now - lastTime, ...(options ? options : {})})
-  }
-
-  provide(emitterProviderKey, emitter)
-  provide(currentNodeProviderKey, currentNode)
-  provide(psychProviderKey, psych)
-  provide(hasPsychProviderKey, true)
 
   return psych
 }
@@ -121,26 +110,41 @@ function createTrialNodes(timeline: TimelineNode[]) {
   const result: any[] = []
   let index = 0
 
-  for (const node of timeline) {
-    if (node.timeline) {
-      node.timelineVariables?.forEach((_: unknown, varsIndex: number) => {
-        node.timeline!.forEach((childNode: Record<string, any>, childIndex: number) => {
-          const newNode: Record<string, any> = {
-            index,
-            source: childNode,
-            sourceGroup: node,
-            position: { childIndex, varsIndex }
-          }
-          newNode.outputData = cloneData(childNode.data, newNode)
-          result.push(newNode)
-          index += 1
-        })
-      })
+  for (const parameters of timeline) {
+    if (parameters.timeline) {
+      const newNode: any = {
+        index,
+        parameters
+      }
+      newNode.trials = createChildNodes(parameters, newNode),
+      result.push(newNode)
     } else {
-      result.push({ index, source: node, outputData: cloneData(node.data) })
-      index += 1
+      result.push({
+        index,
+        parameters,
+        trialData: cloneData(parameters.data)
+      })
     }
+    index += 1
   }
+
+  return result
+}
+
+function createChildNodes(node: any, parentNode: any) {
+  const result: any = []
+  node.timelineVariables.forEach((_: unknown, varsIndex: number) => {
+    node.timeline!.forEach((child: Record<string, any>, childIndex: number) => {
+      const location = [varsIndex, childIndex]
+      result.push({
+        id: `${varsIndex}-${childIndex}`,
+        location,
+        parentNode,
+        parameters: child,
+        trialData: cloneData(child.data, node, location)
+      })
+    })
+  })
 
   return result
 }

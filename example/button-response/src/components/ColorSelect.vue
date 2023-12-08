@@ -16,7 +16,7 @@
 </template>
 
 <script setup lang="ts">
-import { PsychPane, usePsych } from 'vue-psych'
+import { PsychPane, usePsych } from '../../../vue-psych'
 
 const psych = usePsych()
 
