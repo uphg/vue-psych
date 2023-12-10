@@ -21,7 +21,6 @@ const psych = useProviderPsych({
   }
 })
 
-// const timeline = 
 onMounted(() => {
   psych.run([
     {

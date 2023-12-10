@@ -37,6 +37,35 @@ export function useProviderPsych(options: any) {
     progressIncrease()
   }
 
+  function start() {
+    const now = performance.now()
+    test.value = getCurrentTest(progress.value)
+    const { trialDuration } = test.value.parameters
+
+    emitter.emit('start')
+    test.value.parameters.onStart?.()
+    test.value.trialData = {
+      startTime: now,
+      triggers: []
+    }
+
+    if (typeof trialDuration === 'number') {
+      timerId = window.setTimeout(() => {
+        timerId = null
+        next()
+      }, trialDuration)
+    }
+  }
+
+  function finish() {
+    const now = performance.now()
+    test.value.parameters.onFinish?.()
+    const { trialData } = test.value
+    trialData.timeElapsed = now - trialData.startTime
+    cleanup()
+    emitter.emit('finish')
+  }
+
   function progressIncrease() {
     const { parentNode } = test.value
     const { index, childIndex } = progress.value
@@ -48,12 +77,12 @@ export function useProviderPsych(options: any) {
         progress.value.childIndex = childIndex < 0 ? 0 : (childIndex + 1)
         start()
       } else if (index < maxIndex) {
-        test.value.parentNode.parameters.onFinish?.()
+        parentNode.parameters.onFinish?.()
         progress.value.index += 1
         progress.value.childIndex = nextNode?.parameters?.timeline ? 0 : -1
         start()
       } else {
-        test.value.parentNode.parameters.onFinish?.()
+        parentNode.parameters.onFinish?.()
         options.onFinish?.()
       }
     } else {
@@ -68,28 +97,6 @@ export function useProviderPsych(options: any) {
     }
   }
 
-  function start() {
-    emitter.emit('start')
-    console.log('progress.value')
-    console.log({...progress.value})
-    test.value = getCurrentTest(progress.value)
-    test.value.parameters.onStart?.()
-    const { trialDuration } = test.value.parameters
-
-    if (typeof trialDuration === 'number') {
-      timerId = window.setTimeout(() => {
-        timerId = null
-        next()
-      }, trialDuration)
-    }
-  }
-
-  function finish() {
-    test.value.parameters.onFinish?.()
-    cleanup()
-    emitter.emit('finish')
-  }
-
   function getCurrentTest({ index, childIndex }: any) {
     console.log('trialNodes.value')
     console.log([...trialNodes.value])
@@ -97,7 +104,12 @@ export function useProviderPsych(options: any) {
   }
 
   function trigger(eventName: string, options?: any) {
-
+    const now = performance.now()
+    const { triggers } = test.value.trialData
+    if (!triggers) return
+    const prev = triggers.length > 0 ? triggers[triggers.length - 1] : null
+    const lastTime = prev?.rt ?? test.value.startTime
+    triggers.push({ eventName, now, rt: now - lastTime, ...(options ? options : {})})
   }
 
   function variables(key: string) {
