@@ -20,8 +20,8 @@ import Fail from './components/Fail.vue'
 
 const psych = useProviderPsych({
   onFinish() {
-    console.log('psych.getTrials')
-    console.log(psych.getTrials?.())
+    console.log('psych.getTrialNodes')
+    console.log(psych.getTrialNodes?.())
   }
 })
 
@@ -71,8 +71,9 @@ const timeline = [
           color: psych.variables('color'),
           correctResponse: psych.variables('correctResponse')
         },
-        onFinish(data: any) {
-          psych.setData({ correct: data.response === data.correctResponse })
+        onFinish(test: any) {
+          const key = test.records.events[0].key
+          psych.setData({ correct: key === test.trialData.correctResponse })
         }
       }
     ],
@@ -85,6 +86,7 @@ const timeline = [
     ],
     failed() {
       console.log('运行 fail')
+      console.log(psych.getTrialNodes?.())
       return {
         name: 'fail',
         data: {

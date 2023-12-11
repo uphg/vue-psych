@@ -46,9 +46,8 @@ export function useProviderPsych(options: ProviderPsychOptions) {
       test.value = getCurrentTest(progress.value)
     }
     const { trialDuration } = test.value.parameters
-
     emitter.emit('start')
-    test.value.parameters.onStart?.()
+    test.value.parameters.onStart?.(test.value)
     test.value.records = {
       startTime: now,
       events: []
@@ -64,8 +63,8 @@ export function useProviderPsych(options: ProviderPsychOptions) {
 
   function finish() {
     const now = performance.now()
-    const { records, trialData } = test.value
-    test.value.parameters.onFinish?.(trialData)
+    const { records } = test.value
+    test.value.parameters.onFinish?.(test.value)
     records.timeElapsed = now - records.startTime
     cleanup()
     emitter.emit('finish')
@@ -85,13 +84,13 @@ export function useProviderPsych(options: ProviderPsychOptions) {
         const failed = runFailed()
         if (failed) return
         if (index < maxIndex) {
-          parentNode.parameters.onFinish?.(trialData)
+          parentNode.parameters.onFinish?.(test.value)
           progress.value.index += 1
           progress.value.childIndex = nextNode?.parameters?.timeline ? 0 : -1
           start()
         } else {
-          parentNode.parameters.onFinish?.(trialData)
-          options.onFinish?.(trialData)
+          parentNode.parameters.onFinish?.(test.value)
+          options.onFinish?.(test.value)
         }
       }
     } else {
@@ -101,7 +100,7 @@ export function useProviderPsych(options: ProviderPsychOptions) {
         progress.value.childIndex = nextNode?.parameters?.timeline ? 0 : -1
         start()
       } else {
-        options.onFinish?.(trialData)
+        options.onFinish?.(test.value)
       }
     }
   }
