@@ -97,6 +97,7 @@ const timeline = [
 
 onMounted(() => {
   psych.run(timeline)
+  psych.to(1)
 })
 </script>
 

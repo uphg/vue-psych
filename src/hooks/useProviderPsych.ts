@@ -6,7 +6,10 @@ import { currentNodeProviderKey, emitterProviderKey, hasPsychProviderKey, psychP
 import { TimelineVariables } from "../shared/variables"
 import { isNil } from "../shared/isNil"
 
-export function useProviderPsych(options: any) {
+export type Psych = ReturnType<typeof useProviderPsych>
+export type ProviderPsychOptions = { onStart?(data: Record<string, any>): void, onFinish?(): void, onFinish?(data: Record<string, any>): void }
+
+export function useProviderPsych(options: ProviderPsychOptions) {
   const timeline = ref<TimelineNode[]>([])
   const trialNodes = ref<any[]>([])
   const test = ref<any>({})

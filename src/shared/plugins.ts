@@ -8,8 +8,8 @@ export function keyboardResponse() {
   let predicate: KeyPredicate | undefined
   let handler: PsychPluginHandler | undefined | (() => void)
 
-  function load(trial: TrialNode, psych: Psych, _handler?: PsychPluginHandler) {
-    const keys = trial.source?.choices!
+  function load(trial: Record<string, any>, psych: Psych, _handler?: PsychPluginHandler) {
+    const keys = trial.parameters?.choices!
     predicate = createKeyPredicate(keys)
     handler = _handler ?? ((event) => {
       psych.trigger('keyboard', { key: event.key })
