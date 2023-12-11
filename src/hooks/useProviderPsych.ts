@@ -148,6 +148,9 @@ export function useProviderPsych(options: ProviderPsychOptions) {
 
   function to(index: number, childIndex?: number) {
     if (isNil(index)) return
+    if (index > 0) {
+      finish()
+    }
     progress.value.index = index
     progress.value.childIndex = isNil(childIndex) ? -1 : childIndex
     start()
