@@ -14,9 +14,9 @@ export interface TimelineNode {
   data?: TimelineData
   timeline?: TimelineNode[]
   timelineVariables?: TimelineData[]
-  onStart?(data?: TimelineData): void
-  onFinish?(data?: TimelineData): void
-  failed?(data?: TimelineData): boolean
+  onStart?(trial?: TrialNode): void
+  onFinish?(trial?: TrialNode): void
+  failed?(): boolean
 }
 
 export interface TrialNode {
@@ -25,7 +25,7 @@ export interface TrialNode {
   location?: [number, number]
   parentNode?: TrialNode
   trialData?: TimelineData
-  records: {
+  records?: {
     startTime: number
     timeElapsed: number
     events?: Array<{
