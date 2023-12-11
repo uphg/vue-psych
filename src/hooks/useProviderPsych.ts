@@ -1,6 +1,6 @@
 import { provide, ref } from "vue"
 import { cloneData } from "../shared/cloneData"
-import Emitter from "../shared/emitter"
+import { Emitter } from "small-emitter"
 import type { TimelineNode } from "../types"
 import { currentNodeProviderKey, emitterProviderKey, hasPsychProviderKey, psychProviderKey } from "../shared/provider"
 import { TimelineVariables } from "../shared/variables"
@@ -42,10 +42,7 @@ export function useProviderPsych(options: ProviderPsychOptions) {
 
   function start(status?: number) {
     const now = performance.now()
-    console.log('status')
-    console.log(status)
     if (!status) {
-      console.log('!status')
       test.value = getCurrentTest(progress.value)
     }
     const { trialDuration } = test.value.parameters
@@ -54,7 +51,7 @@ export function useProviderPsych(options: ProviderPsychOptions) {
     test.value.parameters.onStart?.()
     test.value.records = {
       startTime: now,
-      triggers: []
+      events: []
     }
 
     if (typeof trialDuration === 'number') {
@@ -123,11 +120,11 @@ export function useProviderPsych(options: ProviderPsychOptions) {
 
   function trigger(eventName: string, options?: any) {
     const now = performance.now()
-    const { triggers } = test.value.records
-    if (!triggers) return
-    const prev = triggers.length > 0 ? triggers[triggers.length - 1] : null
+    const { events } = test.value.records
+    if (!events) return
+    const prev = events.length > 0 ? events[events.length - 1] : null
     const lastTime = prev?.rt ?? test.value.startTime
-    triggers.push({ eventName, now, rt: now - lastTime, ...(options ? options : {})})
+    events.push({ eventName, now, rt: now - lastTime, ...(options ? options : {})})
   }
 
   function variables(key: string) {

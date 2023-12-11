@@ -21,17 +21,20 @@ export interface TimelineNode {
 
 export interface TrialNode {
   index: number
-  source: TimelineNode
-  sourceGroup: TimelineNode
-  outputData?: TimelineData
-  startTime: number
-  timeElapsed: number
-  triggers?: Array<{
-    eventName: string
-    now: number
-    rt: number
-    [key: string]: unknown
-  }>
+  parameters: TimelineNode
+  location?: [number, number]
+  parentNode?: TrialNode
+  trialData?: TimelineData
+  records: {
+    startTime: number
+    timeElapsed: number
+    events?: Array<{
+      eventName: string
+      now: number
+      rt: number
+      [key: string]: unknown
+    }>
+  }
 }
 
 export type PsychPlugin = () => {

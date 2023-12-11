@@ -1,8 +1,8 @@
 import { computed, defineComponent, inject, nextTick, onUnmounted, type PropType, type Ref, type SlotsType } from "vue"
 import { currentNodeProviderKey, emitterProviderKey, psychProviderKey } from "../shared/provider"
 import type { Psych } from "../hooks/useProviderPsych"
-// import type { TrialNode } from "@/types"
-import type Emitter from "../shared/emitter"
+import type { Emitter } from "small-emitter"
+import type { TrialNode } from "../types"
 
 const PsychPane = defineComponent({
   props: {
@@ -18,8 +18,7 @@ const PsychPane = defineComponent({
       return !parameters || parameters?.name !== props.name
     })
     const psych = inject<Psych>(psychProviderKey)
-    // const currentNode = inject<Ref<TrialNode>>(currentNodeProviderKey)
-    const test = inject<Ref<Record<string, any>>>(currentNodeProviderKey)
+    const test = inject<Ref<TrialNode>>(currentNodeProviderKey)
     const emitter = inject<Emitter>(emitterProviderKey)!
 
     let plugin: any
