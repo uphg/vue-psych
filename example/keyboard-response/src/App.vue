@@ -72,6 +72,8 @@ const timeline = [
           correctResponse: psych.variables('correctResponse')
         },
         onFinish(test: any) {
+          console.log('test.location')
+          console.log(test.location)
           const key = test.records.events[0].key
           psych.setData({ correct: key === test.trialData.correctResponse })
         }
@@ -84,17 +86,28 @@ const timeline = [
       { color: 'orange', correctResponse: 'j' },
       { color: 'blue', correctResponse: 'f' }
     ],
-    failed() {
-      console.log('运行 fail')
-      console.log(psych.getTrialNodes?.())
-      return {
-        name: 'fail',
-        data: {
-          message: '测试未通过，请重新开始'
-        }
-      }
+    // failed() {
+    //   console.log('运行 fail')
+    //   console.log(psych.getTrialNodes?.())
+    //   return {
+    //     name: 'fail',
+    //     data: {
+    //       message: '测试未通过，请重新开始'
+    //     }
+    //   }
+    // }
+  },
+  {
+    name: 'welcome',
+    type: keyboardResponse,
+    choices: [' '],
+    data: {
+      message: '实验结束，按空格键退出。'
+    },
+    onFinish() {
+      console.log('last - onFinish')  
     }
-  }
+  },
 ]
 
 onMounted(() => {

@@ -71,9 +71,10 @@ export function useProviderPsych(options: ProviderPsychOptions) {
   }
 
   function progressIncrease() {
-    const { parentNode, trialData } = test.value
+    const { parentNode } = test.value
     const { index, childIndex } = progress.value
     const nextNode = trialNodes.value?.[index + 1]
+
     if (parentNode?.trials) {
       const maxChildIndex = parentNode.trials.length - 1
       const maxIndex = trialNodes.value.length - 1
@@ -84,12 +85,10 @@ export function useProviderPsych(options: ProviderPsychOptions) {
         const failed = runFailed()
         if (failed) return
         if (index < maxIndex) {
-          parentNode.parameters.onFinish?.(test.value)
           progress.value.index += 1
           progress.value.childIndex = nextNode?.parameters?.timeline ? 0 : -1
           start()
         } else {
-          parentNode.parameters.onFinish?.(test.value)
           options.onFinish?.(test.value)
         }
       }
@@ -147,7 +146,7 @@ export function useProviderPsych(options: ProviderPsychOptions) {
     timerId && window.clearTimeout(timerId)
   }
 
-  function to(index: number, childIndex: number) {
+  function to(index: number, childIndex?: number) {
     if (isNil(index)) return
     progress.value.index = index
     progress.value.childIndex = isNil(childIndex) ? -1 : childIndex
