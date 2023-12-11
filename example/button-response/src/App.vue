@@ -3,6 +3,7 @@
     <ColorSelect/>
     <SingleSelect/>
     <LoadPane/>
+    <Fail/>
   </div>
 </template>
 
@@ -12,6 +13,7 @@ import { useProviderPsych } from '../../vue-psych'
 import ColorSelect from '@/components/ColorSelect.vue'
 import SingleSelect from '@/components/SingleSelect.vue'
 import LoadPane from '@/components/LoadPane.vue'
+import Fail from '@/components/Fail.vue'
 
 const psych = useProviderPsych({
   onFinish() {
@@ -80,6 +82,15 @@ onMounted(() => {
       ],
       onFinish() {
         console.log('当前试次结束')
+      },
+      failed() {
+        console.log('运行 fail')
+        return {
+          name: 'fail',
+          data: {
+            message: '练习测试未通过，请重新开始练习'
+          }
+        }
       }
     },
     {

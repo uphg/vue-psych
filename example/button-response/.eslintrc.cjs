@@ -12,6 +12,7 @@ module.exports = {
     ecmaVersion: 'latest'
   },
   rules: {
-    'no-const-assign': 'off'
+    'no-const-assign': 'off',
+    'vue/multi-word-component-names': 'off'
   }
 }

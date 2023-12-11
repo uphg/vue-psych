@@ -15,7 +15,7 @@ export function useProviderPsych(options: any) {
     childIndex: -1,
   })
   const emitter = new Emitter()
-  const psych = { run, next, to, variables, trigger, getTrialNodes: () => trialNodes.value }
+  const psych = { run, next, to, variables, trigger, setData, setVariables, getTrialNodes: () => trialNodes.value }
   let timerId: number | null = null
 
   provide(currentNodeProviderKey, test)
@@ -37,14 +37,19 @@ export function useProviderPsych(options: any) {
     progressIncrease()
   }
 
-  function start() {
+  function start(status?: number) {
     const now = performance.now()
-    test.value = getCurrentTest(progress.value)
+    console.log('status')
+    console.log(status)
+    if (!status) {
+      console.log('!status')
+      test.value = getCurrentTest(progress.value)
+    }
     const { trialDuration } = test.value.parameters
 
     emitter.emit('start')
     test.value.parameters.onStart?.()
-    test.value.trialData = {
+    test.value.records = {
       startTime: now,
       triggers: []
     }
@@ -59,15 +64,15 @@ export function useProviderPsych(options: any) {
 
   function finish() {
     const now = performance.now()
-    test.value.parameters.onFinish?.()
-    const { trialData } = test.value
-    trialData.timeElapsed = now - trialData.startTime
+    const { records, trialData } = test.value
+    test.value.parameters.onFinish?.(trialData)
+    records.timeElapsed = now - records.startTime
     cleanup()
     emitter.emit('finish')
   }
 
   function progressIncrease() {
-    const { parentNode } = test.value
+    const { parentNode, trialData } = test.value
     const { index, childIndex } = progress.value
     const nextNode = trialNodes.value?.[index + 1]
     if (parentNode?.trials) {
@@ -76,14 +81,18 @@ export function useProviderPsych(options: any) {
       if (childIndex < maxChildIndex) {
         progress.value.childIndex = childIndex < 0 ? 0 : (childIndex + 1)
         start()
-      } else if (index < maxIndex) {
-        parentNode.parameters.onFinish?.()
-        progress.value.index += 1
-        progress.value.childIndex = nextNode?.parameters?.timeline ? 0 : -1
-        start()
       } else {
-        parentNode.parameters.onFinish?.()
-        options.onFinish?.()
+        const failed = runFailed()
+        if (failed) return
+        if (index < maxIndex) {
+          parentNode.parameters.onFinish?.(trialData)
+          progress.value.index += 1
+          progress.value.childIndex = nextNode?.parameters?.timeline ? 0 : -1
+          start()
+        } else {
+          parentNode.parameters.onFinish?.(trialData)
+          options.onFinish?.(trialData)
+        }
       }
     } else {
       const maxIndex = trialNodes.value.length - 1
@@ -92,20 +101,26 @@ export function useProviderPsych(options: any) {
         progress.value.childIndex = nextNode?.parameters?.timeline ? 0 : -1
         start()
       } else {
-        options.onFinish?.()
+        options.onFinish?.(trialData)
       }
     }
   }
 
   function getCurrentTest({ index, childIndex }: any) {
-    console.log('trialNodes.value')
-    console.log([...trialNodes.value])
     return childIndex < 0 ? trialNodes.value[index] : trialNodes.value[index].trials[childIndex]
+  }
+
+  function setVariables(index: number, variables: unknown[]) {
+    const { parameters } = trialNodes.value[index]
+    parameters.timelineVariables = variables
+    const newNode: any = { index, parameters }
+    newNode.trials = createChildNodes(parameters, newNode),
+    trialNodes.value[index] = newNode
   }
 
   function trigger(eventName: string, options?: any) {
     const now = performance.now()
-    const { triggers } = test.value.trialData
+    const { triggers } = test.value.records
     if (!triggers) return
     const prev = triggers.length > 0 ? triggers[triggers.length - 1] : null
     const lastTime = prev?.rt ?? test.value.startTime
@@ -116,6 +131,19 @@ export function useProviderPsych(options: any) {
     return new TimelineVariables(key)
   }
 
+  function runFailed() {
+    const failed = test.value.parentNode?.parameters.failed?.()
+    if (!failed) return false
+    test.value = {
+      index: -2,
+      parameters: failed,
+      trialData: cloneData(failed.data)
+    }
+    start(-2)
+
+    return true
+  }
+
   function cleanup() {
     timerId && window.clearTimeout(timerId)
   }
@@ -123,11 +151,13 @@ export function useProviderPsych(options: any) {
   function to(index: number, childIndex: number) {
     if (isNil(index)) return
     progress.value.index = index
-    if (!isNil(childIndex)) {
-      progress.value.childIndex = childIndex
-    }
-
+    progress.value.childIndex = isNil(childIndex) ? -1 : childIndex
     start()
+  }
+
+  function setData<T extends Record<string, any>>(obj: T) {
+    const { trialData } = test.value
+    test.value.trialData = Object.assign(trialData ?? {}, obj)
   }
 
   return psych

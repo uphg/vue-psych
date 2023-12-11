@@ -15,6 +15,10 @@ const PsychPane = defineComponent({
     const slot = computed(renderSlot)
     const invisible = computed(() => {
       const { parameters } = test!.value ?? {}
+      console.log('parameters')
+      console.log(parameters)
+      console.log('props.name')
+      console.log(props.name)
       return !parameters || parameters?.name !== props.name
     })
     const psych = inject<Psych>(psychProviderKey)

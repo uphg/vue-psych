@@ -4,21 +4,24 @@
     <Welcome/>
     <Instructions/>
     <Fixation />
+    <Fail/>
   </div>
 </template>
 
 <script setup lang="ts">
 import { onMounted } from 'vue'
-import { useProviderPsych, keyboardResponse } from 'vue-psych'
+// import { useProviderPsych, keyboardResponse } from 'vue-psych'
+import { useProviderPsych, keyboardResponse } from '../../vue-psych'
 import Test from './components/Test.vue'
 import Welcome from './components/Welcome.vue'
 import Instructions from './components/Instructions.vue'
 import Fixation from './components/Fixation.vue'
+import Fail from './components/Fail.vue'
 
 const psych = useProviderPsych({
   onFinish() {
     console.log('psych.getTrials')
-    console.log(psych.getTrials())
+    console.log(psych.getTrials?.())
   }
 })
 
@@ -36,24 +39,24 @@ const timeline = [
     type: keyboardResponse,
     choices: [' ']
   },
-  {
-    name: 'test',
-    type: keyboardResponse,
-    choices: ['f', 'j'],
-    data: {
-      color: 'orange',
-      correctResponse: 'j'
-    }
-  },
-  {
-    name: 'test',
-    type: keyboardResponse,
-    choices: ['f', 'j'],
-    data: {
-      color: 'blue',
-      correctResponse: 'f'
-    }
-  },
+  // {
+  //   name: 'test',
+  //   type: keyboardResponse,
+  //   choices: ['f', 'j'],
+  //   data: {
+  //     color: 'orange',
+  //     correctResponse: 'j'
+  //   }
+  // },
+  // {
+  //   name: 'test',
+  //   type: keyboardResponse,
+  //   choices: ['f', 'j'],
+  //   data: {
+  //     color: 'blue',
+  //     correctResponse: 'f'
+  //   }
+  // },
   {
     timeline: [
       {
@@ -80,6 +83,15 @@ const timeline = [
       { color: 'orange', correctResponse: 'j' },
       { color: 'blue', correctResponse: 'f' }
     ],
+    failed() {
+      console.log('运行 fail')
+      return {
+        name: 'fail',
+        data: {
+          message: '测试未通过，请重新开始'
+        }
+      }
+    }
   }
 ]
 

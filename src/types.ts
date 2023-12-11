@@ -16,6 +16,7 @@ export interface TimelineNode {
   timelineVariables?: TimelineData[]
   onStart?(data?: TimelineData): void
   onFinish?(data?: TimelineData): void
+  failed?(data?: TimelineData): boolean
 }
 
 export interface TrialNode {
