@@ -17,9 +17,17 @@
 </template>
 
 <script setup lang="ts">
-import { PsychPane, usePsych } from '../../../vue-psych'
+import { PsychPane, onFinish, onStart, usePsych } from '../../../vue-psych'
 
 const psych = usePsych()
+
+onStart(() => {
+  console.log('颜色选择，实验开始')
+})
+
+onFinish(() => {
+  console.log('颜色选择，实验结束')
+})
 
 function onClick() {
   psych.trigger('click')

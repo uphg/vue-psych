@@ -5,6 +5,7 @@ import type { TimelineNode } from "../types"
 import { currentNodeProviderKey, emitterProviderKey, hasPsychProviderKey, psychProviderKey } from "../shared/provider"
 import { TimelineVariables } from "../shared/variables"
 import { isNil } from "../shared/isNil"
+import { useTestCycle } from "./useTestCycle"
 
 export type Psych = ReturnType<typeof useProviderPsych>
 export type ProviderPsychOptions = { onStart?(data: Record<string, any>): void, onFinish?(): void, onFinish?(data: Record<string, any>): void }
@@ -19,12 +20,15 @@ export function useProviderPsych(options?: ProviderPsychOptions) {
   })
   const emitter = new Emitter()
   const psych = { run, next, to, variables, trigger, setData, setVariables, getTrialNodes: () => trialNodes.value }
+
   let timerId: number | null = null
 
   provide(currentNodeProviderKey, test)
   provide(hasPsychProviderKey, true)
   provide(psychProviderKey, psych)
   provide(emitterProviderKey, emitter)
+
+  useTestCycle()
 
   function run(nodes: TimelineNode[]) {
     timeline.value = nodes

@@ -1,8 +1,13 @@
-import { computed, defineComponent, inject, nextTick, onUnmounted, type PropType, type Ref, type SlotsType } from "vue"
-import { currentNodeProviderKey, emitterProviderKey, psychProviderKey } from "../shared/provider"
+import { computed, defineComponent, inject, onUnmounted, ref, type PropType, type Ref } from "vue"
+import { currentNodeProviderKey, emitterProviderKey, finishProviderKey,  psychProviderKey, startProviderKey } from "../shared/provider"
 import type { Psych } from "../hooks/useProviderPsych"
 import type { Emitter } from "small-emitter"
 import type { TrialNode } from "../types"
+
+export type PsychPane = {
+  start: Function | null
+  finish: Function | null
+}
 
 const PsychPane = defineComponent({
   props: {
@@ -12,6 +17,9 @@ const PsychPane = defineComponent({
   //   default(props: { foo: string; bar: number }): void
   // }>,
   setup(props, context) {
+    const runStart = ref<Function | null>(null)
+    const runFinish = ref<Function | null>(null)
+
     const slot = computed(renderSlot)
     const invisible = computed(() => {
       const { parameters } = test!.value ?? {}
@@ -20,8 +28,20 @@ const PsychPane = defineComponent({
     const psych = inject<Psych>(psychProviderKey)
     const test = inject<Ref<TrialNode>>(currentNodeProviderKey)
     const emitter = inject<Emitter>(emitterProviderKey)!
-
     let plugin: any
+
+    const start = inject<Ref<Function | null>>(startProviderKey)
+    const finish = inject<Ref<Function | null>>(finishProviderKey)
+
+    if (start?.value) {
+      runStart.value = start.value
+      start.value = null
+    }
+
+    if (finish?.value) {
+      runFinish.value = finish.value
+      finish.value = null
+    }
 
     emitter.on('start', onStart)
     emitter.on('finish', onFinish)
@@ -32,16 +52,20 @@ const PsychPane = defineComponent({
     })
 
     function onStart() {
-      nextTick(() => {
-        const { parameters } = test!.value ?? {}
-        if (invisible.value || !parameters?.type) return
-        plugin = parameters.type?.()
-        plugin.load?.(test!.value, psych)
-      })
+      if (invisible.value) return
+      runStart.value?.()
+
+      const { parameters } = test!.value ?? {}
+      if (!parameters?.type) return
+      plugin = parameters.type?.()
+      plugin.load?.(test!.value, psych)
     }
 
     function onFinish() {
-      if (invisible.value || !plugin) return
+      if (invisible.value) return
+      runFinish.value?.()
+
+      if (!plugin) return
       plugin.unload?.()
       plugin = null
     }
