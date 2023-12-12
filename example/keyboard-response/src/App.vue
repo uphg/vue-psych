@@ -86,8 +86,7 @@ const timeline = [
       { color: 'orange', correctResponse: 'j' },
       { color: 'blue', correctResponse: 'f' }
     ],
-    // failed() {
-    //   console.log('运行 fail')
+    // later() {
     //   console.log(psych.getTrialNodes?.())
     //   return {
     //     name: 'fail',

@@ -83,8 +83,7 @@ onMounted(() => {
       onFinish() {
         console.log('当前试次结束')
       },
-      failed() {
-        console.log('运行 fail')
+      later() {
         return {
           name: 'fail',
           data: {

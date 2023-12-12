@@ -9,7 +9,7 @@ import { isNil } from "../shared/isNil"
 export type Psych = ReturnType<typeof useProviderPsych>
 export type ProviderPsychOptions = { onStart?(data: Record<string, any>): void, onFinish?(): void, onFinish?(data: Record<string, any>): void }
 
-export function useProviderPsych(options: ProviderPsychOptions) {
+export function useProviderPsych(options?: ProviderPsychOptions) {
   const timeline = ref<TimelineNode[]>([])
   const trialNodes = ref<any[]>([])
   const test = ref<any>({})
@@ -82,14 +82,14 @@ export function useProviderPsych(options: ProviderPsychOptions) {
         progress.value.childIndex = childIndex < 0 ? 0 : (childIndex + 1)
         start()
       } else {
-        const failed = runFailed()
-        if (failed) return
+        const later = runLater()
+        if (later) return
         if (index < maxIndex) {
           progress.value.index += 1
           progress.value.childIndex = nextNode?.parameters?.timeline ? 0 : -1
           start()
         } else {
-          options.onFinish?.(test.value)
+          options?.onFinish?.(test.value)
         }
       }
     } else {
@@ -99,7 +99,7 @@ export function useProviderPsych(options: ProviderPsychOptions) {
         progress.value.childIndex = nextNode?.parameters?.timeline ? 0 : -1
         start()
       } else {
-        options.onFinish?.(test.value)
+        options?.onFinish?.(test.value)
       }
     }
   }
@@ -129,13 +129,13 @@ export function useProviderPsych(options: ProviderPsychOptions) {
     return new TimelineVariables(key)
   }
 
-  function runFailed() {
-    const failed = test.value.parentNode?.parameters.failed?.()
-    if (!failed) return false
+  function runLater() {
+    const later = test.value.parentNode?.parameters.later?.()
+    if (!later) return false
     test.value = {
       index: -2,
-      parameters: failed,
-      trialData: cloneData(failed.data)
+      parameters: later,
+      trialData: cloneData(later.data)
     }
     start(-2)
 
