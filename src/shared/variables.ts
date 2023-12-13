@@ -7,6 +7,10 @@ export class TimelineVariables {
   }
 }
 
+export function variables(key: string) {
+  return new TimelineVariables(key)
+}
+
 export function isVariables(value: Record<string, any>) {
   return Object.getPrototypeOf(value) === TimelineVariables.prototype
 }

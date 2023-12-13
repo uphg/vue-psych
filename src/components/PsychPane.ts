@@ -1,7 +1,6 @@
-import { computed, defineComponent, inject, onUnmounted, ref, type PropType, type Ref } from "vue"
-import { currentNodeProviderKey, emitterProviderKey, finishProviderKey,  psychProviderKey, startProviderKey } from "../shared/provider"
+import { computed, defineComponent, inject, type PropType, type Ref, type SlotsType } from "vue"
+import { currentTestProviderKey, psychProviderKey, templatesProviderKey } from "../shared/provider"
 import type { Psych } from "../hooks/useProviderPsych"
-import type { Emitter } from "small-emitter"
 import type { TrialNode } from "../types"
 
 export type PsychPane = {
@@ -11,49 +10,33 @@ export type PsychPane = {
 
 const PsychPane = defineComponent({
   props: {
-    name: String as PropType<string>
+    name: String as PropType<string>,
+    onStart: Function as PropType<(test?: TrialNode) => void>,
+    onFinish: Function as PropType<(test?: TrialNode) => void>
   },
-  // slots: Object as SlotsType<{
-  //   default(props: { foo: string; bar: number }): void
-  // }>,
+  slots: Object as SlotsType<{
+    default(props: Record<string, any>): void
+  }>,
   setup(props, context) {
-    const runStart = ref<Function | null>(null)
-    const runFinish = ref<Function | null>(null)
-
-    const slot = computed(renderSlot)
     const invisible = computed(() => {
       const { parameters } = test!.value ?? {}
       return !parameters || parameters?.name !== props.name
     })
-    const psych = inject<Psych>(psychProviderKey)
-    const test = inject<Ref<TrialNode>>(currentNodeProviderKey)
-    const emitter = inject<Emitter>(emitterProviderKey)!
-    let plugin: any
-
-    const start = inject<Ref<Function | null>>(startProviderKey)
-    const finish = inject<Ref<Function | null>>(finishProviderKey)
-
-    if (start?.value) {
-      runStart.value = start.value
-      start.value = null
-    }
-
-    if (finish?.value) {
-      runFinish.value = finish.value
-      finish.value = null
-    }
-
-    emitter.on('start', onStart)
-    emitter.on('finish', onFinish)
-
-    onUnmounted(() => {
-      emitter.off('start', onStart)
-      emitter.off('finish', onFinish)
+    const slot = computed(() => {
+      if (invisible.value) return
+      return context.slots.default && context.slots.default(test!.value?.trialData!)
     })
 
+    const psych = inject<Psych>(psychProviderKey)
+    const test = inject<Ref<TrialNode>>(currentTestProviderKey)
+    const templates = inject<Ref<Map<any, any>>>(templatesProviderKey)
+
+    let plugin: any
+
+    templates?.value.set(props.name, { onStart, onFinish })
+
     function onStart() {
-      if (invisible.value) return
-      runStart.value?.()
+      props.onStart?.(test?.value)
 
       const { parameters } = test!.value ?? {}
       if (!parameters?.type) return
@@ -62,17 +45,11 @@ const PsychPane = defineComponent({
     }
 
     function onFinish() {
-      if (invisible.value) return
-      runFinish.value?.()
+      props.onFinish?.(test?.value)
 
       if (!plugin) return
       plugin.unload?.()
       plugin = null
-    }
-
-    function renderSlot() {
-      if (invisible.value) return
-      return context.slots.default?.(test!.value?.trialData)
     }
 
     return () => slot.value

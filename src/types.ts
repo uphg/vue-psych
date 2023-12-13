@@ -3,7 +3,7 @@ import type { Psych } from './hooks/useProviderPsych'
 type Key = string | number | symbol
 
 export interface TimelineData {
-  [key: Key]: string | number | symbol | boolean | ReturnType<Psych['variables']> | null | Array<unknown> | TimelineData
+  [key: Key]: unknown | ReturnType<Psych['variables']> | Array<unknown> | TimelineData
 }
 
 export interface TimelineNode {
@@ -16,10 +16,11 @@ export interface TimelineNode {
   timelineVariables?: TimelineData[]
   onStart?(trial?: TrialNode): void
   onFinish?(trial?: TrialNode): void
-  later?(): boolean
+  later?<T extends TimelineNode>(): T | boolean
 }
 
 export interface TrialNode {
+  id: string | number,
   index: number
   parameters: TimelineNode
   location?: [number, number]

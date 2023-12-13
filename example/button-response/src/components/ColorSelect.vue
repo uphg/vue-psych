@@ -1,5 +1,5 @@
 <template>
-  <PsychPane name="colorSelect" v-slot="data">
+  <PsychPane name="colorSelect" v-slot="data" :on-start="onStart" :on-finish="onFinish">
     <div class="content">
       <h2>{{ data.message }}</h2>
       <h2 :style="{ color: data.correctResponse }">{{ data.text }}</h2>
@@ -17,17 +17,21 @@
 </template>
 
 <script setup lang="ts">
-import { PsychPane, onFinish, onStart, usePsych } from '../../../vue-psych'
+import { ref } from 'vue'
+import { PsychPane, usePsych } from '../../../vue-psych'
+import ColorChild from './ColorChild.vue'
 
+const backgroundColor = ref<string | null>(null)
 const psych = usePsych()
 
-onStart(() => {
+function onStart() {
   console.log('颜色选择，实验开始')
-})
+  backgroundColor.value = Math.floor(Math.random() * 11) > 5 ? 'red' : 'blue'
+}
 
-onFinish(() => {
+function onFinish() {
   console.log('颜色选择，实验结束')
-})
+}
 
 function onClick() {
   psych.trigger('click')
