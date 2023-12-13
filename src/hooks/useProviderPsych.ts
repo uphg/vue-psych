@@ -8,7 +8,10 @@ import { isNil } from "../shared/isNil"
 import { useTestCycle } from "./useTestCycle"
 
 export type Psych = ReturnType<typeof useProviderPsych>
-export type ProviderPsychOptions = { onStart?(data: Record<string, any>): void, onFinish?(): void, onFinish?(data: Record<string, any>): void }
+export type ProviderPsychOptions = {
+  onStart?(data: Record<string, any>): void,
+  onFinish?(data: Record<string, any>): void
+}
 
 export function useProviderPsych(options?: ProviderPsychOptions) {
   const timeline = ref<TimelineNode[]>([])
@@ -19,7 +22,7 @@ export function useProviderPsych(options?: ProviderPsychOptions) {
     childIndex: -1,
   })
   const emitter = new Emitter()
-  const psych = { run, next, to, variables, trigger, setData, setVariables, getTrialNodes: () => trialNodes.value }
+  const psych = { run, next, to, variables, trigger, getData, setData, setVariables, getTest, getTrialNodes }
 
   let timerId: number | null = null
 
@@ -158,6 +161,18 @@ export function useProviderPsych(options?: ProviderPsychOptions) {
     progress.value.index = index
     progress.value.childIndex = isNil(childIndex) ? -1 : childIndex
     start()
+  }
+
+  function getTest(){
+    return test.value
+  }
+
+  function getTrialNodes() {
+    return trialNodes.value
+  }
+
+  function getData() {
+    return test.value.trialData
   }
 
   function setData<T extends Record<string, any>>(obj: T) {
