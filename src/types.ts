@@ -16,7 +16,7 @@ export interface TimelineNode {
   timelineVariables?: TimelineData[]
   onStart?(trial?: TrialNode): void
   onFinish?(trial?: TrialNode): void
-  later?<T extends TimelineNode>(): T | boolean
+  later?(): TimelineNode | boolean
 }
 
 export interface TrialNode {
@@ -26,9 +26,11 @@ export interface TrialNode {
   location?: [number, number]
   parentNode?: TrialNode
   trialData?: TimelineData
+  trials?: TrialNode[]
+  plugin?: PsychPlugin
   records?: {
     startTime: number
-    timeElapsed: number
+    timeElapsed?: number
     events?: Array<{
       eventName: string
       now: number

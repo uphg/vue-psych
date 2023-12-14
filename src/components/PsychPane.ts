@@ -41,6 +41,7 @@ const PsychPane = defineComponent({
       const { parameters } = test!.value ?? {}
       if (!parameters?.type) return
       plugin = parameters.type?.()
+      psych?.setTest({ plugin })
       plugin.load?.(test!.value, psych)
     }
 
@@ -49,6 +50,7 @@ const PsychPane = defineComponent({
 
       if (!plugin) return
       plugin.unload?.()
+      psych?.setTest({ plugin: null })
       plugin = null
     }
 

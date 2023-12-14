@@ -1,6 +1,6 @@
 import { provide, ref } from "vue"
 import { cloneData } from "../shared/cloneData"
-import type { TimelineNode } from "../types"
+import type { TimelineNode, TrialNode } from "../types"
 import { currentTestProviderKey, hasPsychProviderKey, psychProviderKey, templatesProviderKey } from "../shared/provider"
 import { variables } from "../shared/variables"
 import { isNil } from "../shared/isNil"
@@ -28,7 +28,7 @@ export type TemplateOptions = {
 export function useProviderPsych(options?: ProviderPsychOptions) {
   const timeline = ref<TimelineNode[]>([])
   const trialNodes = ref<any[]>([])
-  const test = ref<any>({})
+  const test = ref<TrialNode>()
   const progress = ref({
     index: 0,
     childIndex: -1,
@@ -36,7 +36,9 @@ export function useProviderPsych(options?: ProviderPsychOptions) {
 
   const templates = ref<Map<string, TemplateOptions>>(new Map())
 
-  const psych = { run, next, to, variables, trigger, getData, setData, setVariables, getTest, getTrialNodes }
+  const psych = { run, next, to, variables, trigger, getData, setData, setVariables, setTest, getTest, getTrialNodes, get plugin() {
+    return test.value?.plugin
+  } }
 
   let timerId: number | null = null
 
@@ -45,10 +47,13 @@ export function useProviderPsych(options?: ProviderPsychOptions) {
   provide(psychProviderKey, psych)
   provide(templatesProviderKey, templates)
 
-  function run(nodes: TimelineNode[]) {
+  function run(nodes: TimelineNode[], location: number[]) {
     timeline.value = nodes
     trialNodes.value = createTrialNodes(nodes)
-    if (trialNodes.value[0].trials) {
+    if (location) {
+      progress.value.index = location[0]
+      progress.value.childIndex = location[1] ? location[1] : -1
+    } else if (trialNodes.value[0].trials) {
       progress.value.childIndex = 0
     }
     start()
@@ -64,10 +69,10 @@ export function useProviderPsych(options?: ProviderPsychOptions) {
     if (!status) {
       test.value = getCurrentTest(progress.value)
     }
-    const { trialDuration } = test.value.parameters
+    const { trialDuration } = test.value!.parameters
     startEffect()
-    test.value.parameters.onStart?.(test.value)
-    test.value.records = {
+    test.value!.parameters.onStart?.(test.value)
+    test.value!.records = {
       startTime: now,
       events: []
     }
@@ -81,16 +86,19 @@ export function useProviderPsych(options?: ProviderPsychOptions) {
   }
 
   function finish() {
+    if (!test.value) return
     const now = performance.now()
     const { records } = test.value
     test.value.parameters.onFinish?.(test.value)
-
-    records.timeElapsed = now - records.startTime
+    if (records) {
+      records.timeElapsed = now - records.startTime
+    }
     cleanup()
     finishEffect()
   }
 
   function progressIncrease() {
+    if (!test.value) return
     const { parentNode } = test.value
     const { index, childIndex } = progress.value
     const nextNode = trialNodes.value?.[index + 1]
@@ -137,31 +145,45 @@ export function useProviderPsych(options?: ProviderPsychOptions) {
   }
 
   function startEffect() {
+    if (!test.value) return
     const { name } = test.value.parameters
-    templates.value.get(name)?.onStart()
+    templates.value.get(name!)?.onStart()
   }
 
   function finishEffect() {
+    if (!test.value) return
     const { name } = test.value.parameters
-    templates.value.get(name)?.onFinish()
+    templates.value.get(name!)?.onFinish()
+  }
+
+  function setTest(object: Record<string, any>) {
+    const { index, childIndex } = progress.value
+    if (childIndex < 0 ) {
+      trialNodes.value[index] = Object.assign(trialNodes.value[index], object)
+    } else {
+      trialNodes.value[index].trials[childIndex] = Object.assign(trialNodes.value[index].trials[childIndex], object)
+    }
   }
 
   function trigger(eventName: string, options?: any) {
+    if (!test.value) return
     const now = performance.now()
-    const { events } = test.value.records
+    const { events } = test.value.records!
     if (!events) return
     const prev = events.length > 0 ? events[events.length - 1] : null
-    const lastTime = prev?.rt ?? test.value.startTime
+    const lastTime = prev?.rt ?? test.value.records?.startTime!
     events.push({ eventName, now, rt: now - lastTime, ...(options ? options : {})})
   }
 
   function runLater() {
+    if (!test.value) return
     const later = test.value.parentNode?.parameters.later?.()
     if (!later) return false
     test.value = {
+      id: -2,
       index: -2,
-      parameters: later,
-      trialData: cloneData(later.data)
+      parameters: later as TimelineNode,
+      trialData: cloneData((later as TimelineNode).data)
     }
     start(-2)
 
@@ -171,14 +193,6 @@ export function useProviderPsych(options?: ProviderPsychOptions) {
   function cleanup() {
     timerId && window.clearTimeout(timerId)
   }
-
-  // function onStart(fn: Function) {
-
-  // }
-
-  // function onFinish(fn: Function) {
-
-  // }
 
   function to(index: number, childIndex?: number) {
     if (isNil(index)) return
@@ -199,10 +213,11 @@ export function useProviderPsych(options?: ProviderPsychOptions) {
   }
 
   function getData() {
-    return test.value.trialData
+    return test.value?.trialData
   }
 
   function setData<T extends Record<string, any>>(obj: T) {
+    if (!test.value) return
     const { trialData } = test.value
     test.value.trialData = Object.assign(trialData ?? {}, obj)
   }
