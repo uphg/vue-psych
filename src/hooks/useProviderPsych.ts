@@ -16,6 +16,15 @@ export type TemplateOptions = {
   onFinish(): void
 }
 
+/**
+ * A trials instance injection function.
+ * @param {object} [options] - option parameters.
+ * @returns {object} Psych object, including common methods.
+ * 
+ * @example
+ * const psych = useProviderPsych({ onStart() { ... }, onFinish() { ... } })
+ * psych.run([...])
+ */
 export function useProviderPsych(options?: ProviderPsychOptions) {
   const timeline = ref<TimelineNode[]>([])
   const trialNodes = ref<any[]>([])

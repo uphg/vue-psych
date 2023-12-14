@@ -4,6 +4,24 @@ import type { Psych } from '../hooks/useProviderPsych'
 export type KeyPredicate = (event: KeyboardEvent) => boolean
 export type KeyFilter = true | string | string[] | KeyPredicate
 
+/**
+ * Keyboard response plugin.
+ * @returns {object} Plugin object, containing plug-in loading/unloading functions.
+ * 
+ * @example
+ * const welcome = {
+ *   name: 'welcome',
+ *   type: keyboardResponse,
+ *   choices: [' '],
+ *   data: {
+ *     message: '欢迎参加本次实验，按空格键开始。'
+ *   }
+ * }
+ * 
+ * onMounted(() => {
+ *   psych.run([welcome])
+ * })
+ */
 export function keyboardResponse() {
   let predicate: KeyPredicate | undefined
   let handler: PsychPluginHandler | undefined | (() => void)

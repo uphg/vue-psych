@@ -7,6 +7,25 @@ export class TimelineVariables {
   }
 }
 
+/**
+ * Create variables object.
+ * @param {string} [key] - The key in the corresponding timelineVariables object.
+ * @returns {object} TimelineVariables object.
+ * 
+ * @example
+ * const test = {
+ *   data: {
+ *     correctResponse: psych.variables('correctResponse')  
+ *   }
+ * }
+ * 
+ * const testProcedure = {
+ *   timeline: [test],
+ *   timeline_variables: [
+ *     { correctResponse: 'f' }
+ *   ]
+ * }
+ */
 export function variables(key: string) {
   return new TimelineVariables(key)
 }
