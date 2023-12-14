@@ -47,7 +47,7 @@ export function useProviderPsych(options?: ProviderPsychOptions) {
   provide(psychProviderKey, psych)
   provide(templatesProviderKey, templates)
 
-  function run(nodes: TimelineNode[], location: number[]) {
+  function run(nodes: TimelineNode[], location?: number[]) {
     timeline.value = nodes
     trialNodes.value = createTrialNodes(nodes)
     if (location) {
