@@ -1,1 +1,0 @@
-import{_ as s,o as i,c as a,R as n}from"./chunks/framework.YVOKpxtN.js";const o=JSON.parse('{"title":"Vue Psych","description":"","frontmatter":{"outline":"deep"},"headers":[],"relativePath":"index.md","filePath":"index.md"}'),t={name:"index.md"},l=n("",7),h=[l];function e(p,k,E,r,d,g){return i(),a("div",null,h)}const y=s(t,[["render",e]]);export{o as __pageData,y as default};

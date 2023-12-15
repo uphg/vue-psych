@@ -1,1 +1,0 @@
-import{_ as s,o as i,c as a,R as n}from"./chunks/framework.YVOKpxtN.js";const c=JSON.parse('{"title":"API","description":"","frontmatter":{},"headers":[],"relativePath":"zh/api.md","filePath":"zh/api.md"}'),h={name:"zh/api.md"},t=n("",59),l=[t];function k(p,e,E,r,d,g){return i(),a("div",null,l)}const o=s(h,[["render",k]]);export{c as __pageData,o as default};
