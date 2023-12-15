@@ -70,6 +70,41 @@ psych.to(0, 1)
 psych.getTrialNodes()
 ```
 
+## PsychPane 组件
+
+实验节点内容渲染组件，主要用于渲染当前实验节点需要展示的内容。
+
+### 基础用法
+
+```vue
+<template>
+  <div class="container">
+    <PsychPane name="welcome">
+      <div>Hello world!</div>
+    </PsychPane>
+  </div>
+</template>
+<script setup lang="ts">
+import { useProviderPsych } from 'vue-psych'
+
+const psych = useProviderPsych()
+const helloTrial = {
+  name: 'welcome'
+}
+
+onMounted(() => {
+  psych.run([helloTrial])
+})
+```
+
+### 属性
+
+| 名称     | 类型                          | 说明                                       |
+| -------- | ----------------------------- | ------------------------------------------ |
+| name     | `string`                      | 当前节点name，与 TimelineNode 的 name 对应 |
+| onStart  | `(trial?: TrialNode) => void` | 当前测试开始时运行该回调函数。             |
+| onFinish | `(trial?: TrialNode) => void` | 当前测试结束时运行该回调函数。             |
+
 ## variables
 
 创建 timelineVariables 变量引用
@@ -89,9 +124,9 @@ psych.variables(key: string): void
 ### 示例
 
 ```js
-import { usePsych } from 'vue-psych'
+import { useProviderPsych } from 'vue-psych'
 
-const psych = usePsych()
+const psych = useProviderPsych()
 
 const test = {
   name: 'test',
@@ -122,9 +157,9 @@ onMounted(() => {
 也可以直接使用导出的 variables 方法
 
 ```js
-import { usePsych, variables } from 'vue-psych'
+import { useProviderPsych, variables } from 'vue-psych'
 
-const psych = usePsych()
+const psych = useProviderPsych()
 
 const test = {
   name: 'test',
@@ -252,11 +287,82 @@ psych.setData(data: Record<string, any>): void
 
 本示例使用 setData 设置反应时间实验的结果
 
-```js
-const fixation = {
-  name: 'fixation',
-  trialDuration: 500
+```js{17}
+import { useProviderPsych } from 'vue-psych'
+
+const psych = useProviderPsych()
+
+const test = {
+  name: 'test',
+  type: keyboardResponse,
+  choices: ['f', 'j'],
+  data: {
+    color: psych.variables('color'),
+    correctResponse: psych.variables('correctResponse')
+  },
+  onFinish(test) {
+    const key = test.records.events[0].key
+    
+    // 设置最终结果是否正确
+    psych.setData({ correct: key === test.trialData.correctResponse })
+  }
 }
+
+const testProcedure = {
+  timeline: [test],
+  timelineVariables: [
+    { color: 'blue', correctResponse: 'f' },
+    { color: 'orange', correctResponse: 'j' },
+    { color: 'blue', correctResponse: 'f' },
+    { color: 'orange', correctResponse: 'j' },
+    { color: 'blue', correctResponse: 'f' }
+  ]
+}
+
+onMounted(() => {
+  psych.run([testProcedure])
+})
+```
+
+注：setData 传入的对象会合并至最终实验节点的 trialData 属性中
+
+## psych.setVariables
+
+### 类型
+
+```ts
+psych.setVariables(variables: Array<Record<string, any>>): void
+```
+
+### 参数
+
+| 名称      | 类型                         | 描述                                  |
+| --------- | ---------------------------- | ------------------------------------- |
+| variables | `Array<Record<string, any>>` | 用于替换之前的 timelineVariables 数据 |
+
+### 示例
+
+```vue
+<template>
+  <!-- 测试题 -->
+  <PsychPane name="test" v-slot="data">
+    <div class="block" :style="{ backgroundColor: data.color }"></div>
+  </PsychPane>
+
+  <!-- 测试未通过 -->
+  <PsychPane name="fail" v-slot="data">
+    <div class="fail-container">
+      <div>测试未通过，请重新开始</div>
+      <button @click="reset">重新开始</button>
+    </div>
+  </PsychPane>
+<template>
+
+<script setup lang="ts">
+import { onMounted } from 'vue'
+import { PsychPane, useProviderPsych } from 'vue-psych'
+
+const psych = useProviderPsych()
 
 const test = {
   name: 'test',
@@ -273,18 +379,36 @@ const test = {
 }
 
 const testProcedure = {
-  timeline: [fixation, test],
+  timeline: [test],
   timelineVariables: [
     { color: 'blue', correctResponse: 'f' },
     { color: 'orange', correctResponse: 'j' },
     { color: 'blue', correctResponse: 'f' },
     { color: 'orange', correctResponse: 'j' },
     { color: 'blue', correctResponse: 'f' }
-  ]
+  ],
+  later() {
+    const correctRate = getCorrectRate()
+    return correctRate < 50 ? {
+      name: 'fail'
+    } : false
+  }
 }
+
+function getCorrectRate() {
+  const trialNodes = psych.getTrialNodes()
+  const tests = trialNodes[2].trials.filter((item: any) => item.parameters.name === 'test')
+  const corrects = tests.filter((item: any) => item.trialData?.correct)
+  return (corrects.length / tests.length) * 100
+}
+
+onMounted(() => {
+  psych.run([testProcedure])
+})
+</script>
 ```
 
-注：setData 传入的对象会合并至最终实验节点的 trialData 属性中
+
 
 ## psych.trigger
 
@@ -334,3 +458,25 @@ function onClick(color: string) {
 
 上面代码中, trigger 的 options 参数表示可选参数，可以是一个自定义对象，会记录在最终实验节点对象中。
 
+## psych.getTrialNodes
+
+获取所有实验节点
+
+### 类型
+
+```ts
+psych.getTrialNodes(): TrialNode[]
+```
+
+### 示例
+
+在实验运行完成后，获取所有实验节点。
+
+```js
+const psych = useProviderPsych({
+  onFinish() {
+    console.log('psych.getTrialNodes')
+    console.log(psych.getTrialNodes())
+  }
+})
+```
