@@ -1,5 +1,6 @@
-export { useProviderPsych } from './hooks/useProviderPsych'
+export { useProviderPsych, type Psych, type ProviderPsychOptions } from './hooks/useProviderPsych'
 export { usePsych } from './hooks/usePsych'
 export { default as PsychPane } from './components/PsychPane'
 export * from './shared/plugins'
 export { variables } from './shared/variables'
+export type { TimelineNode, TrialNode, PsychPlugin, PsychPluginReturn } from './types'

@@ -19,7 +19,6 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { PsychPane, usePsych } from '../../../vue-psych'
-import ColorChild from './ColorChild.vue'
 
 const backgroundColor = ref<string | null>(null)
 const psych = usePsych()

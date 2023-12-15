@@ -45,4 +45,6 @@ export type PsychPlugin = () => {
   unload(): void
 }
 
+export type PsychPluginReturn = ReturnType<PsychPlugin>
+
 export type PsychPluginHandler = (event: KeyboardEvent) => void

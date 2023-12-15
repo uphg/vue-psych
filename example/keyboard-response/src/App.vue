@@ -39,24 +39,6 @@ const timeline = [
     type: keyboardResponse,
     choices: [' ']
   },
-  // {
-  //   name: 'test',
-  //   type: keyboardResponse,
-  //   choices: ['f', 'j'],
-  //   data: {
-  //     color: 'orange',
-  //     correctResponse: 'j'
-  //   }
-  // },
-  // {
-  //   name: 'test',
-  //   type: keyboardResponse,
-  //   choices: ['f', 'j'],
-  //   data: {
-  //     color: 'blue',
-  //     correctResponse: 'f'
-  //   }
-  // },
   {
     timeline: [
       {
@@ -72,8 +54,6 @@ const timeline = [
           correctResponse: psych.variables('correctResponse')
         },
         onFinish(test: any) {
-          console.log('test.location')
-          console.log(test.location)
           const key = test.records.events[0].key
           psych.setData({ correct: key === test.trialData.correctResponse })
         }

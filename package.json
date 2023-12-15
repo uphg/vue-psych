@@ -3,13 +3,13 @@
   "version": "0.1.12",
   "license": "MIT",
   "main": "dist/index.umd.js",
-  "module": "dist/index.es.js",
+  "module": "dist/index.js",
   "types": "types/index.d.ts",
   "exports": {
     ".": {
       "import": {
         "types": "./types/index.d.ts",
-        "default": "./dist/index.es.js"
+        "default": "./dist/index.js"
       },
       "require": {
         "types": "./types/index.d.ts",

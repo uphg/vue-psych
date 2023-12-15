@@ -9,7 +9,7 @@ export default defineConfig({
     lib: {
       entry: path.resolve(__dirname, 'src/index.ts'),
       name: 'vue-psych',
-      fileName: (format) => `index.${format}.js`
+      fileName: (format) => format === 'es' ? `index.js` : `index.${format}.js`
     },
     rollupOptions: {
       // make sure to externalize deps that shouldn't be bundled
