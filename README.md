@@ -2,7 +2,7 @@
 
 Psychological experiment process encapsulation, referenced from [jspsych](https://www.jspsych.org/).
 
-## Install
+## Installation
 
 ```bash
 pnpm add vue-psych
