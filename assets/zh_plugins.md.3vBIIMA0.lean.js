@@ -1,1 +1,0 @@
-import{_ as e,o as a,c as s,R as t}from"./chunks/framework.YVOKpxtN.js";const g=JSON.parse('{"title":"","description":"","frontmatter":{},"headers":[],"relativePath":"zh/plugins.md","filePath":"zh/plugins.md"}'),o={name:"zh/plugins.md"},n=t("",3),i=[n];function r(l,c,p,d,_,h){return a(),s("div",null,i)}const m=e(o,[["render",r]]);export{g as __pageData,m as default};
