@@ -1,0 +1,1 @@
+import{_ as s,o as i,c as a,R as h}from"./chunks/framework.OBNbGUgv.js";const y=JSON.parse('{"title":"API","description":"","frontmatter":{},"headers":[],"relativePath":"api.md","filePath":"api.md"}'),n={name:"api.md"},t=h("",9),e=[t];function p(l,k,r,d,c,o){return i(),a("div",null,e)}const g=s(n,[["render",p]]);export{y as __pageData,g as default};

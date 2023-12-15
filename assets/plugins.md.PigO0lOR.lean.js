@@ -1,0 +1,1 @@
+import{_ as e,o as a,c as s,R as t}from"./chunks/framework.OBNbGUgv.js";const g=JSON.parse('{"title":"","description":"","frontmatter":{},"headers":[],"relativePath":"plugins.md","filePath":"plugins.md"}'),o={name:"plugins.md"},n=t("",3),i=[n];function r(l,c,p,d,_,h){return a(),s("div",null,i)}const m=e(o,[["render",r]]);export{g as __pageData,m as default};
