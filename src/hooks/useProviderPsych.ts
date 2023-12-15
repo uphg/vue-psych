@@ -52,7 +52,7 @@ export function useProviderPsych(options?: ProviderPsychOptions) {
     trialNodes.value = createTrialNodes(nodes)
     if (location) {
       progress.value.index = location[0]
-      progress.value.childIndex = location[1] ? location[1] : -1
+      progress.value.childIndex = isNil(location[1]) ? -1 : location[1]
     } else if (trialNodes.value[0].trials) {
       progress.value.childIndex = 0
     }
